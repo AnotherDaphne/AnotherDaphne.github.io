@@ -6,9 +6,12 @@
 body {
     background-color: #16161d;
     color: #FFF8E7;
+    
 }
 
 #gooperDiv {
-    margin-top: 70%;
-    margin-left: 70%; 
+    /* margin-top: 70%; */
+    margin-top: 2000px;
+    /* margin-left: 70%;  */
+    margin-left: 2000px;
 }
