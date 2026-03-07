@@ -1,0 +1,14 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background-color: #16161d;
+    color: #FFF8E7;
+}
+
+#gooperDiv {
+    margin-top: 70%;
+    margin-left: 70%; 
+}
