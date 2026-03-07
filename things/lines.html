@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <title>Lines</title>
     <style>
-        body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; background: #16161d; }
-        canvas { cursor: crosshair; display: block; }
+        body { margin: 0; padding: 0; height: 100%; overflow: hidden; background: #16161d; }
+        /* canvas { cursor: crosshair; display: block; } */
     </style>
 </head>
 <body>
@@ -41,7 +41,7 @@
             ctx.lineTo(endX, endY);
             ctx.stroke();
             
-            
+
             for (let i = 0; i < 8; i++) { //randomly generate 8 from the center point
                 const subAngle = angle + (Math.random() - 0.5) * Math.PI *2; 
                 const subLength = crackLength * (Math.random() + 0.5); 
