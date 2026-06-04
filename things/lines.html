@@ -4,14 +4,22 @@
     <meta charset="UTF-8">
     <title>Lines</title>
     <style>
-        body {height: 100%; overflow: hidden; background: #16161d; }
+        body {height: 100%; overflow: hidden; background: #16161d; color:#fff8e7 }
+        p {position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);}
     </style>
 </head>
 <body>
-
+    <p>click anywhere</p> 
     <canvas id="crackCanvas"></canvas>
+    
 
 <script>
+        document.addEventListener("click", (e) => { // hide the text when clicked
+            const p = document.querySelector('p');
+            if (p) {
+                p.style.display = 'none';
+            }
+        });
         const canvas = document.getElementById('crackCanvas');
         const ctx = canvas.getContext('2d');
         canvas.width = window.innerWidth;
