@@ -2,7 +2,7 @@
 
 <head> 
     <meta charset="utf-8">
-    <title>maze</title>
+    <title>>-(._.)-<</title>
     <style>
          body {background: #16161d; color: #fff8E7; font-family: Arial, sans-serif;
                 flex-direction: column; display: flex; justify-content: center; align-items: center;
@@ -109,12 +109,12 @@ function generateMaze(width, height) {
     Math.round((height - cellHeight * cellSize - (cellHeight + 1) * cellSpacing) / 2)
   );
 
-  context.fillStyle = "white";
+  context.fillStyle = "#fff8E7";
   var start = remaining.pop();
   cells[start] = 0;
   fillCell(start);
 
-  context.fillStyle = "magenta";
+  context.fillStyle = "#5c6099";
   d3.timer(function() {
     for (var k = 0; k < 50; ++k) {
       if (loopErasedRandomWalk()) {
