@@ -6,14 +6,20 @@
     <style>
         body {height: 100%; overflow: hidden; background: #16161d; color:#fff8e7 }
         p {position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);}
+
+        .backbutton { position:absolute; top: 20px; left: 20px; padding:0px 8px; text-decoration:none; font-size:1.75rem;
+            background: #16161d; color:#fff8e7; border-radius: 4px; border-color: #fff8e7; }
+        .backbutton:hover {cursor:pointer; background: #fff8e7; color:#16161d; transition:0.3s}
+
     </style>
 </head>
 <body>
     <p>click anywhere</p> 
     <canvas id="crackCanvas"></canvas>
-    
 
-<script>
+    <a class="backbutton" href="/index.html">&lt;</a>
+
+    <script>
         document.addEventListener("click", (e) => { // hide the text when clicked
             const p = document.querySelector('p');
             if (p) {
