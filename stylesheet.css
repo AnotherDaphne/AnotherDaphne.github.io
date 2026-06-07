@@ -6,18 +6,26 @@ body {
     text-align: center;
     margin: 0;
     padding: 0;
+
 }
 
-ul {
-    list-style: none; 
-    display: flex; 
-    justify-content: center; 
-    align-items: center;
+.flex-grid {
+    display: flex;
+    gap: 2rem;
+
+    margin-left: 10%;
+    margin-right: 10%;
+    margin-top: 2rem;
+}
+.col {
+    flex: 1;
 }
 
 h1 {
     font-size: 3rem;
-    margin-bottom: 3rem;}
+    margin-bottom: 1.5rem;
+    margin-top: 2em;
+}
 
 p {
     font-size: 1.5rem;
@@ -43,12 +51,48 @@ a:hover {
     transition: 0.3s;
 }
 
-.break {
-    padding: 2em;
+.trail {
+    position: fixed;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%; 
+    background: rgb(92, 96, 153, 0.2); /* #5c6099 */
+    animation: fade 0.8s linear forwards;
+    pointer-events: none;
+  }
+
+  @keyframes fade {
+    from {
+      opacity: 1;
+    }
+    to {
+      opacity: 0;
+    }
+  }
+
+
+#scrollingHDiv {
+  width: 100%;
+  height: 1rem;
+  overflow: hidden;
+  position: relative;
 }
+#scrollingHDiv p {
+  font-size: 1rem;
+  margin:0;
+  padding:0;
 
+/* Starting position */
+transform:translateX(100%);
 
-#gooperDiv {
-    margin-top: 50%;
-    margin-left: 80%;
+/* Apply animation to this element */ 
+animation: scroll-left 17s linear infinite;
+}
+@keyframes scroll-left {
+0% { 
+transform: translateX(100%); 
+}
+100% { 
+transform: translateX(-100%); 
+}
 }

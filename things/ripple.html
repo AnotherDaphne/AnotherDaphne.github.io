@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8"/>
+    <title>Ripple</title>
+     <!-- https://github.com/jumpp14/Water-Ripple/blob/gh-pages/app.js -->
+
+    <style>
+    body { margin: 0; background: #16161d;  height:100%;
+        display: flex; flex-direction: column; align-items: center; justify-content: center; 
+         font-family: sans-serif; color: #fff8e7; font-size:15px; }
+    
+    canvas { background: #16161d;}
+
+    .backbutton { position:absolute; top: 20px; left: 20px; padding:2px 8px; text-decoration:none; font-size:1.5rem;
+            background: #16161d; color:#fff8e7; border-radius: 2px; border-color: #fff8e7; }
+        .backbutton:hover {cursor:pointer; background: #fff8e7; color:#16161d; transition:0.3s} 
+    </style>
+  </head>
+  <body>
+    <a class="backbutton" href="/index.html">&lt;</a>
+
+    <canvas id="rippleCanvas"></canvas>
+
+    <script>
+
+    const canvas = document.getElementById('rippleCanvas');
+    const ctx = canvas.getContext('2d');
+
+    // Match canvas size to the window
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const W = canvas.width;
+    const H = canvas.height;
+    const damping = 0.99; // How quickly ripples lose energy (0-1)
+
+    // Two grids: one for the current frame, one for the previous frame
+    // Each cell stores a wave height value (0 = still water)
+    let current  = new Float32Array(W * H);
+    let previous = new Float32Array(W * H);
+
+    // On mouse move, disturb the water at the cursor position
+    canvas.addEventListener('mousemove', (e) => {
+    const x = e.clientX;
+    const y = e.clientY;
+    previous[y * W + x] = 255; // Drop a ripple at this cell
+    });
+
+    canvas.addEventListener('click', (e) => {
+    const cx = e.clientX;
+    const cy = e.clientY;
+    const radius = 2;     
+    const strength = 500;  
+
+    // Loop over a square region, only disturb cells within the circle
+    for (let dy = -radius; dy <= radius; dy++) {
+        for (let dx = -radius; dx <= radius; dx++) {
+        
+            if (dx * dx + dy * dy <= radius * radius) { // circle boundary check
+            const x = cx + dx;
+            const y = cy + dy;
+
+            if (x >= 0 && x < W && y >= 0 && y < H) { // stay within canvas
+            previous[y * W + x] = strength;
+            }
+        }
+        }
+    }
+    });
+
+    function draw() {
+    // Calculate each cell's new wave height based on its 4 neighbours
+    // wave equation: average of neighbours minus current value
+    for (let y = 1; y < H - 1; y++) {
+        for (let x = 1; x < W - 1; x++) {
+        const i = y * W + x;
+
+        current[i] =
+            (previous[i - 1] + previous[i + 1] +   // left + right
+            previous[i - W] + previous[i + W]) / 2 // up + down
+            - current[i];
+        current[i] *= damping; // Apply damping so ripples fade out
+        }
+    }
+
+    // Write the wave values into pixel data to render on the canvas
+    const imageData = ctx.createImageData(W, H);
+    const pixels = imageData.data;
+    for (let i = 0; i < W * H; i++) {
+        const v = current[i]; // Wave height at this cell
+        pixels[i * 4 + 0] = v;   // R
+        pixels[i * 4 + 1] = v;   // G
+        pixels[i * 4 + 2] = v;   // B
+        pixels[i * 4 + 3] = 255; // A (fully opaque)
+    }
+    ctx.putImageData(imageData, 0, 0);
+
+    // Swap grids: current becomes previous for the next frame
+    [current, previous] = [previous, current];
+
+    requestAnimationFrame(draw);
+    }
+
+    draw();
+
+    </script>
+  </body>
+</html> 
