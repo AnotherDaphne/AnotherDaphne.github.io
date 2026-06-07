@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Audio Visualizer</title>
+  <style>
+    body { margin: 0; background: #16161d; 
+        display: flex; flex-direction: column; align-items: center; justify-content: center; 
+         font-family: sans-serif; color: #fff8e7; font-size:15px; }
+    canvas { border: 1px solid #fff8e7; margin:12px; margin-top: 12%; }
+    button{padding: 6px 14px; background-color:#16161d; color:#fff8e7; border-radius:4px; border:2px solid #fff8e7; font-size:15px;} 
+    button:hover{cursor:pointer; background-color:#fff8e7; color:#16161d; transition:0.3s}
+
+    input[type="file"] {display: none;}
+
+    .file-label { padding: 6px 14px; background-color: #16161d; color: #fff8e7;
+      border-radius: 4px; border: 2px solid #fff8e7; display: inline-block;}
+
+    .file-label:hover {background-color: #fff8e7;  color: #16161d;  transition: 0.3s; cursor:pointer;}
+
+    .backbutton { position:absolute; top: 20px; left: 20px; padding:0px 8px; text-decoration:none; font-size:1.75rem;
+            background: #16161d; color:#fff8e7; border-radius: 4px; border-color: #fff8e7; }
+        .backbutton:hover {cursor:pointer; background: #fff8e7; color:#16161d; transition:0.3s}
+
+  </style>
+</head>
+
+<body>
+  <a class="backbutton" href="/index.html">&lt;</a>
+
+  <canvas id="canvas" width="600" height="200"></canvas>
+
+  <div>
+    <button id="btn">Play / Pause</button>
+    <label for="file" class="file-label">Upload audio if you wish</label>
+    <input type="file" id="file" accept="audio/*" />
+  </div>
+
+  <audio id="audio" loop crossorigin="anonymous" src="../assets/audio.wav"></audio>
+
+  <script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    const audio = document.getElementById('audio');
+    audio.volume = 0.2;
+    const W = canvas.width, H = canvas.height;
+
+    let audioCtx, analyser, data;
+    let initialized = false;
+
+    /*
+     init() Sets up the Web Audio API graph. 
+     Must be called from a user gesture because browsers block AudioContext creation until the user has interacted with the page.
+     *
+     The graph looks like this: <audio> element → MediaElementSourceNode → AnalyserNode → speakers
+     *
+     The AnalyserNode sits in the middle of the chain so it can readfrequency data from the audio stream without interrupting playback.
+     *
+     We guard with `initialized` because createMediaElementSource() throws if called more than once on the same <audio> element.
+     */
+    function init() {
+      if (initialized) return;
+      initialized = true;
+      audioCtx = new AudioContext();
+      analyser = audioCtx.createAnalyser();
+
+      // fftSize controls frequency resolution. 256 gives 128 data bins —
+      // balance between detail and performance.
+      analyser.fftSize = 256;
+
+      // This typed array is reused every frame to hold the frequency data.
+      // Length is always fftSize / 2 (128 in our case).
+      data = new Uint8Array(analyser.frequencyBinCount);
+
+      // Wrap <audio> element as a node in the audio graph, then
+      // chain it through the analyser to the output (speakers).
+      const source = audioCtx.createMediaElementSource(audio);
+      source.connect(analyser);
+      analyser.connect(audioCtx.destination);
+    }
+
+    /*
+     Play / Pause button handler
+     Initialises the audio graph on first click, then toggles playback.
+     also resume the AudioContext in case the browser auto-suspended it
+     */
+    document.getElementById('btn').onclick = () => {
+      init();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      audio.paused ? audio.play() : audio.pause();
+    };
+
+    /*
+     File input handler
+     Lets the user add local file 
+     create an object URL from the file (a temporary in-browser URL)
+     assign it to the <audio> element's src. Because the audio graph was already wired up by init(), 
+     the new source flows through the same AnalyserNode automatically — no rewiring needed.
+     */
+    document.getElementById('file').onchange = e => {
+      const file = e.target.files[0];
+      if (!file) return;
+      init();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      audio.src = URL.createObjectURL(file);
+      audio.play();
+    };
+
+    /*
+     draw()
+     The main animation loop. Runs at ~60fps via requestAnimationFrame.
+     *
+     Each frame:
+     1. Clear the canvas.
+     2. Ask the analyser for the current frequency data (0–255 per bin).
+     3. Draw one vertical bar per bin, scaled to the canvas height.
+        Bar color shifts from blue (low frequencies) to red (high),
+        using HSL so the hue can be derived directly from the bin index.
+     *
+     Before init() has been called, `analyser` is undefined so we skip drawing and just show a blank canvas.
+     */
+    function draw() {
+      requestAnimationFrame(draw);
+      ctx.clearRect(0, 0, W, H);
+      if (!analyser) return;
+
+      // Populate `data` with the latest frequency amplitudes.
+      // Each value is 0 (silent) – 255 (loudest) for that frequency bin.
+      analyser.getByteFrequencyData(data);
+
+      const barW = W / data.length;
+
+      for (let i = 0; i < data.length; i++) {
+        // Scale the 0–255 amplitude to the canvas height.
+        const barH = (data[i] / 255) * H;
+
+        // Map bin index to a hue between 0° (red) and 240° (blue).     ctx.fillStyle = `hsl(${(i / data.length) * 240}, 80%, 60%)`;
+        // All one color ctx.fillStyle = `hsl(180, 80%, 60%)`;
+        ctx.fillStyle = `hsl(${(i / data.length) * 240 + 180}, 80%, 60%)`;
+        
+        // Draw the bar upward from the bottom of the canvas.
+        // The `- 1` on barW adds a small gap between bars.
+        ctx.fillRect(i * barW, H - barH, barW - 1, barH);
+      }
+    }
+
+    draw();
+  </script>
+</body>
+</html>
