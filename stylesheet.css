@@ -16,9 +16,21 @@ body {
     margin-left: 10%;
     margin-right: 10%;
     margin-top: 2rem;
+    
 }
 .col {
     flex: 1;
+    white-space: nowrap; 
+}
+
+/* for mobile devices */
+@media (max-width: 768px) {
+    .flex-grid {
+        flex-direction: column;
+        gap: 2rem;
+    }
+    .col {        width: 100%;
+    }
 }
 
 h1 {
