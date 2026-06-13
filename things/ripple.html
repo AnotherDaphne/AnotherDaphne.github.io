@@ -17,7 +17,8 @@
         .backbutton:hover {cursor:pointer; background: #fff8e7; color:#16161d; transition:0.3s} 
         /* make larger on mobile */
         @media (max-width: 768px) {
-          .backbutton {font-size: 2rem; padding: 4px 12px;}
+        .backbutton {font-size: clamp(1rem, 3vw, 1.25rem);  padding: 8px 14px;}
+        p {font-size: clamp(1rem, 4vw, 1.25rem);}
         }
     </style>
   </head>
