@@ -55,7 +55,7 @@ body {
 /* result */
 #result-row {
     position: fixed;
-    top: -6.75rem;
+    top: -9rem;
     display: flex;
     align-items: center;
     gap: 3rem;
@@ -69,7 +69,7 @@ body {
 /* Win / lose / draw verdict */
 #verdict {
     position: fixed;
-    top: -10.75rem;
+    top: -14rem;
     font-size: 3rem;
     text-align: center;
 
@@ -82,10 +82,10 @@ body {
 #verdict.lose { color: red; }
 #verdict.draw { color: yellow; }
 
-/* Scores at top */
+/* Scores at bottom */
 #scoreboard {
     position: fixed;
-    top: 2rem;
+    bottom: 2rem;
     width: 100%;
     text-align: center;
     font-size: 1.5rem;
