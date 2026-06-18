@@ -1,12 +1,13 @@
 body {
     background-color: #16161d;
     color: #FFF8E7;
-    font-family: Arial, sans-serif;
+    font-family: garamond;
 
     text-align: center;
     margin: 0;
     padding: 0;
-
+    overflow:hidden;
+  user-select: none; 
 }
 .flex-grid {
     display: flex;
@@ -40,6 +41,8 @@ a {
     padding: 10px;
     border-radius: 4px;
     margin:10px;
+    font-size:1.125rem;
+    letter-spacing:0.05rem;
 }
 a:hover {
     background-color: #fff8E7;

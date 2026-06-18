@@ -1,25 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Audio Visualizer</title>
+  <meta charset="UTF-8">
+  <title>Sand</title>
   <style>
-    body { margin: 0; background: #16161d; user-select: none;  }
-    
-    canvas {background:#16161d; border: 1px solid #fff8e7; margin:12px; margin-top: 12%; }
-    button{padding: 6px 14px; background-color:#16161d; color:#fff8e7; border-radius:4px; border:2px solid #fff8e7; font-size:15px;} 
-    button:hover{cursor:pointer; background-color:#fff8e7; color:#16161d; transition:0.3s}
+    body {background: #16161d; font-family: sans-serif; color:#6b6a68; user-select: none; }
+    .everything{display: flex; flex-direction: column;  align-items: center;  justify-content: center; margin-top:3%;}
+    canvas { display: block; cursor:pointer; border: 1px solid #6b6a68; }
+    #text { font-size: 1rem; margin:5px; }
 
-    .stuff {display: flex; flex-direction: column; align-items: center; justify-content: center; 
-         font-family: sans-serif; color: #fff8e7; font-size:15px; margin: 0;}
-    .stuff2 {display:flex; flex-direction:row; gap:1rem;}
+    .resetbutton {position:fixed; top:7px; left:60px; background: #16161d; color:#fff8e7; border:solid; border-width:1px; border-radius: 4px; border-color: #fff8e7;
+            padding:4px 12px}
+    .resetbutton:hover {cursor:pointer; background: #fff8e7; color:#16161d; transition:0.3s}
 
-    input[type="file"] {display: none;}
-
-    .file-label { padding: 6px 14px; background-color: #16161d; color: #fff8e7;
-      border-radius: 4px; border: 2px solid #fff8e7; display: inline-block;}
-
-    .file-label:hover {background-color: #fff8e7;  color: #16161d;  transition: 0.3s; cursor:pointer;}
+    .backbutton { position:absolute; top: 20px; left: 20px; padding:2px 8px; text-decoration:none; font-size:1.5rem;
+            background: #16161d; color:#fff8e7; border-radius: 4px; border-color: #fff8e7; border:solid; border-width:1px; }
+        .backbutton:hover {cursor:pointer; background: #fff8e7; color:#16161d; transition:0.3s} 
 
     #stars {
       width: 1px; height: 1px; background: transparent; position:fixed; z-index:-1;
@@ -35,146 +31,143 @@
       from { transform: translateY(-2000px); }
       to { transform: translateY(0px);}
       }
-
-    .backbutton { position:absolute; top: 20px; left: 20px; padding:2px 8px; text-decoration:none; font-size:1.5rem;
-          background: #16161d; color:#fff8e7; border-radius: 4px; border-color: #fff8e7; border:solid; border-width:1px; }
-      .backbutton:hover {cursor:pointer; background: #fff8e7; color:#16161d; transition:0.3s} 
-    
-      /* make larger on mobile */
-    @media (max-width: 768px) {
-          body {margin-top: 5%; padding: 0 1rem;}
-          .backbutton {font-size: 2rem; padding: 4px 12px;}
-          input {width: 100%; font-size: 1rem; max-width: 100%;}
-        }
-
   </style>
 </head>
-
 <body>
-  
-  <a class="backbutton" href="/index.html">&lt;</a>
-  <div id="stars"></div>
+    <a class="backbutton" href="/index.html">&lt;</a>
+    <p class="resetbutton">reset</p>
+    <div id="stars"></div>
 
-  <div class="stuff">
-    <canvas id="canvas" width="800" height="300"></canvas>
-
-    <div class="stuff2">
-    <button id="btn">Play / Pause</button>
-    <label for="file" class="file-label">Upload audio if you wish</label>
-    </div>
-
-    <input type="file" id="file" accept="audio/*" />
-  </div>
-
-  <audio id="audio" loop crossorigin="anonymous" src="../assets/audio.wav"></audio>
-
-  <script>
+    <div class="everything">
+    <canvas id="canvas"></canvas>
+    <div id="text">hold mouse to pour sand - right click to erase</div>
+    
+    <script>
     const canvas = document.getElementById('canvas');
-    const ctx = canvas.getContext('2d');
-    const audio = document.getElementById('audio');
-    audio.volume = 0.2;
-    const W = canvas.width, H = canvas.height;
+    const ctx    = canvas.getContext('2d');
 
-    let audioCtx, analyser, data;
-    let initialized = false;
+    const resetButton = document.querySelector('.resetbutton');
 
-    /*
-     init() Sets up the Web Audio API graph. 
-     Must be called from a user gesture because browsers block AudioContext creation until the user has interacted with the page.
-     *
-     The graph looks like this: <audio> element → MediaElementSourceNode → AnalyserNode → speakers
-     *
-     The AnalyserNode sits in the middle of the chain so it can readfrequency data from the audio stream without interrupting playback.
-     *
-     We guard with `initialized` because createMediaElementSource() throws if called more than once on the same <audio> element.
-     */
-    function init() {
-      if (initialized) return;
-      initialized = true;
-      audioCtx = new AudioContext();
-      analyser = audioCtx.createAnalyser();
+        resetButton.addEventListener('click', (e) => {
+            e.stopPropagation();
+            for (let row = 0; row < ROWS; row++) {
+                grid[row].fill(0);
+            }
+            draw();
+        });
 
-      // fftSize controls frequency resolution. 256 gives 128 data bins —
-      // balance between detail and performance.
-      analyser.fftSize = 256;
+    const CELL = 4;          // px per sand grain
+    const COLS = Math.floor(window.innerWidth  * 0.85 / CELL);
+    const ROWS = Math.floor(window.innerHeight * 0.75 / CELL);
 
-      // This typed array is reused every frame to hold the frequency data.
-      // Length is always fftSize / 2 (128 in our case).
-      data = new Uint8Array(analyser.frequencyBinCount);
+    canvas.width  = COLS * CELL;
+    canvas.height = ROWS * CELL;
 
-      // Wrap <audio> element as a node in the audio graph, then
-      // chain it through the analyser to the output (speakers).
-      const source = audioCtx.createMediaElementSource(audio);
-      source.connect(analyser);
-      analyser.connect(audioCtx.destination);
+    // Grid stores 0 (empty) or a colour string (occupied)
+    const grid = Array.from({ length: ROWS }, () => new Array(COLS).fill(0));
+
+    const COLOURS = ['#c2955a', '#d4a96a', '#b8864e', '#e0b87a', '#a87840'];
+
+    function randomColour() {
+        return COLOURS[Math.floor(Math.random() * COLOURS.length)];
     }
 
-    /*
-     Play / Pause button handler
-     Initialises the audio graph on first click, then toggles playback.
-     also resume the AudioContext in case the browser auto-suspended it
-     */
-    document.getElementById('btn').onclick = () => {
-      init();
-      if (audioCtx.state === 'suspended') audioCtx.resume();
-      audio.paused ? audio.play() : audio.pause();
-    };
+    let mouseDown = false;
+    let erasing = false;
+    let mouseX = 0;
+    let mouseY = 0;
+    const BRUSH = 3; // radius in cells when pouring
 
-    /*
-     File input handler
-     Lets the user add local file 
-     create an object URL from the file (a temporary in-browser URL)
-     assign it to the <audio> element's src. Because the audio graph was already wired up by init(), 
-     the new source flows through the same AnalyserNode automatically — no rewiring needed.
-     */
-    document.getElementById('file').onchange = e => {
-      const file = e.target.files[0];
-      if (!file) return;
-      init();
-      if (audioCtx.state === 'suspended') audioCtx.resume();
-      audio.src = URL.createObjectURL(file);
-      audio.play();
-    };
+    canvas.addEventListener('mousedown', e => { //erase sand
+        mouseDown = true;
+        erasing   = e.button === 2;
+    });
+    canvas.addEventListener('contextmenu', e => e.preventDefault());
+    canvas.addEventListener('mouseup',   () => mouseDown = false);
+    canvas.addEventListener('mouseleave',() => mouseDown = false);
+    canvas.addEventListener('mousemove', e => {
+        const r = canvas.getBoundingClientRect();
+        mouseX = Math.floor((e.clientX - r.left) / CELL);
+        mouseY = Math.floor((e.clientY - r.top)  / CELL);
+    });
 
-    /*
-     draw()
-     The main animation loop. Runs at ~60fps via requestAnimationFrame.
-     *
-     Each frame:
-     1. Clear the canvas.
-     2. Ask the analyser for the current frequency data (0–255 per bin).
-     3. Draw one vertical bar per bin, scaled to the canvas height.
-        Bar color shifts from blue (low frequencies) to red (high),
-        using HSL so the hue can be derived directly from the bin index.
-     *
-     Before init() has been called, `analyser` is undefined so we skip drawing and just show a blank canvas.
-     */
+    function spawnSand() {
+        for (let dy = -BRUSH; dy <= BRUSH; dy++) {
+            for (let dx = -BRUSH; dx <= BRUSH; dx++) {
+                if (dx * dx + dy * dy > BRUSH * BRUSH) continue; // circle brush
+                    const cx = mouseX + dx;
+                    const cy = mouseY + dy;
+                if (cx < 0 || cx >= COLS || cy < 0 || cy >= ROWS) continue;
+                if (erasing) {
+                    grid[cy][cx] = 0;
+                } else if (!grid[cy][cx] && Math.random() < 0.4) {
+                    // Only fill ~40% of brush cells per frame so it pours, not floods
+                    grid[cy][cx] = randomColour();
+                }
+            }
+        }
+    }
+
+    // Each frame, iterate bottom-to-top so falling grains don't move twice
+    function updateSand() {
+        for (let row = ROWS - 2; row >= 0; row--) {
+        // Shuffle column order each row to remove left/right bias
+            const cols = Array.from({ length: COLS }, (_, i) => i);
+            for (let i = cols.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [cols[i], cols[j]] = [cols[j], cols[i]];
+            }
+
+            for (const col of cols) {
+                if (!grid[row][col]) continue; // empty cell, skip
+
+                const below      = grid[row + 1][col];
+                const belowLeft  = col > 0        ? grid[row + 1][col - 1] : 1;
+                const belowRight = col < COLS - 1 ? grid[row + 1][col + 1] : 1;
+
+                if (!below) {
+                    // Fall straight down
+                    grid[row + 1][col] = grid[row][col];
+                    grid[row][col]     = 0;
+                } else if (!belowLeft && !belowRight) {
+                    // Both diagonals free — pick one randomly
+                    const dir = Math.random() < 0.5 ? -1 : 1;
+                    grid[row + 1][col + dir] = grid[row][col];
+                    grid[row][col]           = 0;
+                } else if (!belowLeft) {
+                    grid[row + 1][col - 1] = grid[row][col];
+                    grid[row][col]         = 0;
+                } else if (!belowRight) {
+                    grid[row + 1][col + 1] = grid[row][col];
+                    grid[row][col]         = 0;
+                }
+                // All three blocked — grain stays put (settled)
+            }
+        }
+    }
+
     function draw() {
-      requestAnimationFrame(draw);
-      ctx.clearRect(0, 0, W, H);
-      if (!analyser) return;
+        ctx.fillStyle = '#16161d';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      // Populate `data` with the latest frequency amplitudes.
-      // Each value is 0 (silent) – 255 (loudest) for that frequency bin.
-      analyser.getByteFrequencyData(data);
-
-      const barW = W / data.length;
-
-      for (let i = 0; i < data.length; i++) {
-        // Scale the 0–255 amplitude to the canvas height.
-        const barH = (data[i] / 255) * H;
-
-        // Map bin index to a hue between 0° (red) and 240° (blue).     ctx.fillStyle = `hsl(${(i / data.length) * 240}, 80%, 60%)`;
-        // All one color ctx.fillStyle = `hsl(180, 80%, 60%)`;
-        ctx.fillStyle = `hsl(${(i / data.length) * 240 + 180}, 80%, 60%)`;
-        
-        // Draw the bar upward from the bottom of the canvas.
-        // The `- 1` on barW adds a small gap between bars.
-        ctx.fillRect(i * barW, H - barH, barW - 1, barH);
-      }
+        for (let row = 0; row < ROWS; row++) {
+            for (let col = 0; col < COLS; col++) {
+                if (!grid[row][col]) continue;
+                ctx.fillStyle = grid[row][col];
+                ctx.fillRect(col * CELL, row * CELL, CELL, CELL);
+            }
+        }
     }
 
-    draw();
-  </script>
+    function loop() {
+        if (mouseDown) spawnSand();
+        updateSand();
+        draw();
+        requestAnimationFrame(loop);
+    }
+    loop();
+    </script>
+
+    </div>  
 </body>
 </html>

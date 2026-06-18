@@ -2,8 +2,9 @@
 
 body {
     background: #0a0a0a;    color: #fff8e7;
-    font-family: 'Courier New', monospace;
+    font-family: sans-serif;
     overflow: hidden;
+    user-select: none; 
 }
 
 /* Camera sits behind everything */

@@ -11,12 +11,12 @@
     canvas { background: #16161d;}
 
     .backbutton { position:absolute; top: 20px; left: 20px; padding:2px 8px; text-decoration:none; font-size:1.5rem;
-            background: #16161d; color:#fff8e7; border-radius: 2px; border-color: #fff8e7; border:solid; border-width:1px; }
+            background: #16161d; color:#fff8e7; border-radius: 4px; border-color: #fff8e7; border:solid; border-width:1px; }
         .backbutton:hover {cursor:pointer; background: #fff8e7; color:#16161d; transition:0.3s} 
-        /* make larger on mobile */
-        @media (max-width: 768px) {
-          .backbutton {font-size: 3rem; padding: 4px 12px;}
-        }
+    /* make larger on mobile */
+    @media (max-width: 768px) {
+        .backbutton {font-size: 3rem; padding: 4px 12px;}
+    }
     </style>
   </head>
   <body>
@@ -90,11 +90,14 @@
     // Write the wave values into pixel data to render on the canvas
     const imageData = ctx.createImageData(W, H);
     const pixels = imageData.data;
+    const baseR = 0x16; // 22          make base color not black
+    const baseG = 0x16; // 22
+    const baseB = 0x1d; // 29
     for (let i = 0; i < W * H; i++) {
         const v = current[i]; // Wave height at this cell
-        pixels[i * 4 + 0] = v;   // R
-        pixels[i * 4 + 1] = v;   // G
-        pixels[i * 4 + 2] = v;   // B
+        pixels[i * 4 + 0] = Math.max(0, Math.min(255, baseR + v));
+        pixels[i * 4 + 1] = Math.max(0, Math.min(255, baseG + v));
+        pixels[i * 4 + 2] = Math.max(0, Math.min(255, baseB + v));
         pixels[i * 4 + 3] = 255; // A (fully opaque)
     }
     ctx.putImageData(imageData, 0, 0);
