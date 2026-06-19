@@ -1,11 +1,6 @@
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
-body {
-    background: #0a0a0a;    color: #fff8e7;
-    font-family: sans-serif;
-    overflow: hidden;
-    user-select: none; 
-}
+body {  background: #16161d;  color: #fff8e7;  font-family: sans-serif;  overflow: hidden; user-select: none; letter-spacing:0.05rem;}
 
 /* Camera sits behind everything */
 #video {
@@ -15,10 +10,7 @@ body {
 }
 
 /* Hand skeleton drawn on top */
-#canvas {
-    position: fixed;    top: 0;     left: 0; z-index: 1;
-    width: 100vw;   height: 100vh;  transform: scaleX(-1); /* mirror */
-}
+#canvas { position: fixed;  top: 0; left: 0; z-index: 1;  width: 100vw;  height: 100vh; transform: scaleX(-1); /* mirror */}
 
 /* HUD overlay */
 #hud {
@@ -30,77 +22,34 @@ body {
 #hud-inner {
     width: min(90rem, 32rem);   height: min(80rem, 10rem);
     display: flex;  flex-direction: column; align-items: center;
-    
-    background: rgba(22, 22, 29, 0.45);
-    border-radius: 1.5rem;
-    padding: 2rem 3rem;
-    backdrop-filter: blur(12px);
+    background: rgba(22, 22, 29, 0.45); border-radius: 1.5rem; padding: 2rem 3rem; backdrop-filter: blur(12px);
 }
 
 /* Big number during countdown */
-#countdown {
-    font-size: 10rem;
-    font-weight: bold;
-    line-height: 1;
-    color: #fff8e7;
-    text-shadow: 0 0 40px rgba(22, 22, 29,0.4); 
-    transition: opacity 0.2s;
-}
+#countdown {font-size: 10rem; font-weight: bold; line-height: 1; color: #fff8e7; text-shadow: 0 0 40px rgba(22, 22, 29,0.4); transition: opacity 0.2s;}
 
 /* current gesture */
-#gesture-label {
-    font-size: 2rem;
-    color: #6b6a68;
-}
+#gesture-label {  font-size: 2rem;  color: #6b6a68; }
 
 /* result */
 #result-row {
-    position: fixed;
-    top: -9rem;
-    display: flex;
-    align-items: center;
-    gap: 3rem;
-    font-size: 5rem;
-
-    background: rgba(22, 22, 29, 0.5);
-    border-radius: 1.5rem;
-    backdrop-filter: blur(12px);
+  position: fixed;  top: -9rem;  display: flex;  align-items: center;  gap: 3rem;  font-size: 5rem;
+  background: rgba(22, 22, 29, 0.5);  border-radius: 1.5rem;  backdrop-filter: blur(12px);
 }
 
 /* Win / lose / draw verdict */
 #verdict {
-    position: fixed;
-    top: -14rem;
-    font-size: 3rem;
-    text-align: center;
-
-    background: rgba(22, 22, 29, 0.5);
-    border-radius: 1.5rem;
-    backdrop-filter: blur(12px);
-    padding: 0.35rem 3rem;
+  position: fixed;  top: -14rem;  font-size: 3rem;  text-align: center;
+  background: rgba(22, 22, 29, 0.5);  border-radius: 1.5rem;  backdrop-filter: blur(12px);  padding: 0.35rem 3rem;
 }
 #verdict.win  { color: lime; }
 #verdict.lose { color: red; }
 #verdict.draw { color: yellow; }
 
 /* Scores at bottom */
-#scoreboard {
-    position: fixed;
-    bottom: 2rem;
-    width: 100%;
-    text-align: center;
-    font-size: 1.5rem;
-    color: #6b6a68;
-}
+#scoreboard {  position: fixed;  bottom: 2rem;  width: 100%;  text-align: center;  font-size: 1.5rem;  color: #6b6a68; }
 
 #scoreboard span { color: #fff8e7; font-size: 1.5rem; margin: 0 0.5rem; }
 
 /* instruction at bottom */
-#hint {
-    position: fixed;
-    bottom: 2rem;
-    width: 100%;
-    text-align: center;
-    font-size: 1rem;
-    color: #6b6a68;
-}
+#hint {  position: fixed; bottom: 2rem;  width: 100%;  text-align: center;  font-size: 1rem;  color: #6b6a68; }
