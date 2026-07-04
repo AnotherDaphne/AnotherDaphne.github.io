@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Draw</title>
+  <style>
+    body{background:#16161d; height: 100%; overflow: hidden; color:#fff8e7; user-select: none;}
+    canvas { background: #16161d; cursor: crosshair; }
+
+    ul {list-style:none;}
+    .top-buttons {display: flex; gap: 10px; list-style: none; align-items: center; position:fixed; left:-20px; top: 0px;}
+    /* input {border: 2px solid #fff8e7; padding: 4px 8px; border-radius: 4px;} */
+
+    .red, .orange, .yellow, .green, .blue, .purple, .white, .black { width: 8px; height: 4px; border: 2px solid #fff8e7;
+    display: inline; border-radius: 4px; padding:4px 12px;}
+
+    .resetbutton {/*position:fixed; top:15px; left:60px; */background: #16161d; color:#fff8e7; 
+        border:solid; border-width:1px; border-radius: 4px; border-color: #fff8e7; padding:4px 12px}
+    .resetbutton:hover {cursor:pointer; background: #fff8e7; color:#16161d; transition:0.3s}
+
+    .backbutton { /*position:absolute; top: 20px; left: 20px; */ padding:2px 8px; text-decoration:none; font-size:1.5rem;
+        background: #16161d; color:#fff8e7; border-radius: 4px; border-color: #fff8e7; border:solid; border-width:1px; }
+    .backbutton:hover {cursor:pointer; background: #fff8e7; color:#16161d; transition:0.3s} 
+
+    
+  </style>
+</head>
+<body>
+
+<canvas id="canvas"></canvas>
+
+<ul class="top-buttons">
+    <li><a class="backbutton" href="/index.html">&lt;</a></li>
+    <li><a class="resetbutton">clear</a></li>
+    <li><a class="resetbutton undobutton">undo</a></li>
+
+    <li class="white"></li>
+    <li class="red"></li>
+    <li class="orange"></li>
+    <li class="yellow"></li>
+    <li class="green"></li>
+    <li class="blue"></li>
+    <li class="purple"></li>
+    <li class="black"></li>
+
+    <li><input type="range" id="brushSize" min="1" max="20" value="2"></li>
+</ul>
+
+<script>
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+let drawing = false;
+let erasing = false;
+
+let currentColor = "#fff8e7";
+
+ctx.lineWidth = 2;
+ctx.lineCap = "round";
+ctx.strokeStyle = currentColor;
+
+// Prevent right-click menu
+canvas.addEventListener("contextmenu", e => e.preventDefault());
+
+const brushSize = document.getElementById("brushSize");
+let brushWidth = 2;
+const eraserWidth = 40;
+
+brushSize.addEventListener("input", () => {
+    brushWidth = Number(brushSize.value);
+});
+
+
+// Undo History
+const history = [];
+const MAX_HISTORY = 20;
+
+function saveState() {
+    if (history.length >= MAX_HISTORY) {
+        history.shift();
+    }
+
+    history.push(
+        ctx.getImageData(0, 0, canvas.width, canvas.height)
+    );
+}
+// Undo Button
+const undoButton = document.querySelector(".undobutton");
+
+undoButton.addEventListener("click", (e) => {
+    e.stopPropagation();
+    if (history.length === 0) return;
+
+    const previous = history.pop();
+    ctx.putImageData(previous, 0, 0);
+});
+
+// Clear Button
+const resetButton = document.querySelector(".resetbutton");
+
+resetButton.addEventListener("click", (e) => {
+    e.stopPropagation();
+    saveState(); // Save before clearing
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+});
+
+// Color Picker
+const colors = {
+    white: "#fff8e7",
+    red: "#ff4d4d",
+    orange: "#ff9900",
+    yellow: "#ffd700",
+    green: "#4caf50",
+    blue: "#2196f3",
+    purple: "#9c27b0",
+    black: "#16161d"
+};
+
+for (const [className, color] of Object.entries(colors)) {
+    const button = document.querySelector("." + className);
+    button.style.backgroundColor = color;
+
+    button.addEventListener("click", (e) => {
+        e.stopPropagation();
+        currentColor = color;
+    });
+}
+
+// Drawing
+canvas.addEventListener("mousedown", (e) => {
+    // Save the canvas before beginning a new stroke
+    saveState();
+
+    drawing = true;
+    erasing = (e.button === 2);
+
+    ctx.beginPath();
+    ctx.moveTo(e.offsetX, e.offsetY);
+
+    if (erasing) {
+        ctx.globalCompositeOperation = "destination-out";
+        ctx.lineWidth = eraserWidth;
+    } else {
+        ctx.globalCompositeOperation = "source-over";
+        ctx.lineWidth = brushWidth;
+        ctx.strokeStyle = currentColor;
+    }
+});
+
+canvas.addEventListener("mousemove", (e) => {
+    if (!drawing) return;
+
+    ctx.lineTo(e.offsetX, e.offsetY);
+    ctx.stroke();
+});
+
+function stopDrawing() {
+    drawing = false;
+    erasing = false;
+    ctx.globalCompositeOperation = "source-over";
+}
+
+canvas.addEventListener("mouseup", stopDrawing);
+canvas.addEventListener("mouseleave", stopDrawing);
+
+// Keep canvas fullscreen
+window.addEventListener("resize", () => {
+    // Preserve current drawing during resize
+    const image = ctx.getImageData(0, 0, canvas.width, canvas.height);
+
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    ctx.lineCap = "round";
+    ctx.strokeStyle = currentColor;
+    ctx.putImageData(image, 0, 0);
+});
+</script>
+
+</body>
+</html>
