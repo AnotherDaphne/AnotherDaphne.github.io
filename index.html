@@ -2,180 +2,177 @@
 <html>
 
 <head>
-	<title>Website</title>
-	<meta charset="utf-8" />
-	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
-	<meta name="viewport" content="width=device-width, initial-scale=1" />
+   <title>Website</title>
+   <meta charset="utf-8" />
+   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-	<link rel="stylesheet" href="/stylesheet.css" />
-	<!-- <script src="/script.js" defer></script> -->
+   <link rel="stylesheet" href="/stylesheet.css" />
+   <!-- <script src="/script.js" defer></script> -->
 </head>
 
 <body>
-    <div id="stars"></div>
-    <h1>Website</h1>
-    <!-- <p>This is a website.</p> -->
-     <div id="scrollingHDiv">
-        <p>This is a website</p>
-    </div>
-    <p>There are some things on this website</p>
-    <small>you can look at them if you want. or not, i don't care</small>
+   <div id="stars"></div>
+   <h1>Website</h1>
+   <div id="scrollingHDiv">
+         <p>This is a website</p>
+   </div>
+   <p>There are some things on this website</p>
+   <small>you can look at them if you want. or not, i don't care</small>
 
-    <div class="break" style="padding:2em;"></div>
+   <div class="break" style="padding:2em;"></div>
 
-    <div class="flex-grid">
-        <div class="col"><a href="/things/lines.html">look at some lines</a></div>
-        <div class="col"> <a href="/things/passwordchecker.html">check your password's strength</a></div>
-        <div class="col"><a href="/things/maze.html">generate a maze</a></div>
-        <div class="col"> <a href="/things/audio.html">visualize some audio</a></div>
-        <div class="col"> <a href="/things/ripple.html">make ripples</a></div>
-    </div>
-    <div class="break" style="padding:2em;"></div>
-    <div class="flex-grid"> 
-        <div class="col"><a href="/things/rps.html">rock paper scissors</a></div>
-        <div class="col"> <a href="/things/snake.html">play a game of snake</a></div>
-        <div class="col"> <a href="/things/sand.html">drop some sand</a></div>
-        <div class="col"> <a href="/things/draw.html">draw something</a></div>
-        <!-- <div class="col">-</div> -->
-    </div>
-    <div class="break" style="padding:2em;"></div>
-    
-    </div>
+   <div class="flex-grid">
+      <div class="col"><a href="/things/lines.html">look at some lines</a></div>
+      <div class="col"> <a href="/things/passwordchecker.html">check your password's strength</a></div>
+      <div class="col"><a href="/things/maze.html">generate a maze</a></div>
+      <div class="col"> <a href="/things/audio.html">visualize some audio</a></div>
+      <div class="col"> <a href="/things/ripple.html">make ripples</a></div>
+   </div>
+   <div class="break" style="padding:2em;"></div>
+   <div class="flex-grid"> 
+      <div class="col"><a href="/things/rps.html">rock paper scissors</a></div>
+      <div class="col"> <a href="/things/snake.html">play a game of snake</a></div>
+      <div class="col"> <a href="/things/sand.html">drop some sand</a></div>
+      <div class="col"> <a href="/things/draw.html">draw something</a></div>
+      <!-- <div class="col">-</div> -->
+   </div>
+   <div class="break" style="padding:2em;"></div>
+   
+   </div>
 
 
-    <div id="guestbook">
-    <h3>Leave a message</h3>
+   <div id="guestbook">
+   <h3>Leave a message</h3>
 
-    <form id="form">
+   <form id="form">
       <textarea id="message" placeholder="type something..." maxlength="280" required></textarea>
       <button type="submit">Submit</button>
-    </form>
+   </form>
 
-    <div id="status"></div>
-    <div id="entries"></div>
-    </div>
+   <div id="status"></div>
+   <div id="entries"></div>
+   </div>
 
-    <!-- Firebase SDKs (compat version — simplest to drop in via script tags) -->
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+      <!-- Firebase SDKs (compat version — simplest to drop in via script tags) -->
+   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 
-<script type="module">
-  // Firebase config here 
-  // Import the functions you need from the SDKs you need
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
-  // TODO: Add SDKs for Firebase products that you want to use
-  // https://firebase.google.com/docs/web/setup#available-libraries
+   <script type="module">
+      // Firebase config here 
+      // Import the functions you need from the SDKs you need
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
+      // TODO: Add SDKs for Firebase products that you want to use
+      // https://firebase.google.com/docs/web/setup#available-libraries
 
-  // Your web app's Firebase configuration
-  const firebaseConfig = {
-    apiKey: "AIzaSyBkUk3ZewNRWdvEtA0dDz6Np_DAio17m4g",
-    authDomain: "website-4a137.firebaseapp.com",
-    projectId: "website-4a137",
-    storageBucket: "website-4a137.firebasestorage.app",
-    messagingSenderId: "67261630579",
-    appId: "1:67261630579:web:b4d051795cfc43f1544206"
-  };
+      // Your web app's Firebase configuration
+      const firebaseConfig = {
+         apiKey: "AIzaSyBkUk3ZewNRWdvEtA0dDz6Np_DAio17m4g",
+         authDomain: "website-4a137.firebaseapp.com",
+         projectId: "website-4a137",
+         storageBucket: "website-4a137.firebasestorage.app",
+         messagingSenderId: "67261630579",
+         appId: "1:67261630579:web:b4d051795cfc43f1544206"
+      };
 
-  firebase.initializeApp(firebaseConfig);
-  const db = firebase.database();
-  const entriesRef = db.ref('entries'); // all guestbook entries live under this node
+      firebase.initializeApp(firebaseConfig);
+      const db = firebase.database();
+      const entriesRef = db.ref('entries'); // all guestbook entries live under this node
 
-  const form      = document.getElementById('form');
-  const msgInput  = document.getElementById('message');
-  const statusEl  = document.getElementById('status');
-  const entriesEl = document.getElementById('entries');
-  const submitBtn = form.querySelector('button');
+      const form      = document.getElementById('form');
+      const msgInput  = document.getElementById('message');
+      const statusEl  = document.getElementById('status');
+      const entriesEl = document.getElementById('entries');
+      const submitBtn = form.querySelector('button');
 
-  function escapeHTML(str) {
-    const div = document.createElement('div');
-    div.textContent = str;
-    return div.innerHTML;
-  }
+      function escapeHTML(str) {
+         const div = document.createElement('div');
+         div.textContent = str;
+         return div.innerHTML;
+      }
 
-  function formatTime(ts) {
-    const d = new Date(ts);
-    return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) +
-           ' ' + d.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
-  }
+      function formatTime(ts) {
+         const d = new Date(ts);
+         return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) +
+                  ' ' + d.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
+      }
 
-  function renderEntries(entries) {
-    if (entries.length === 0) {
-      entriesEl.innerHTML = '<div class="empty">No entries</div>';
-      return;
-    }
-    entries.sort((a, b) => b.timestamp - a.timestamp); // newest first
-    entriesEl.innerHTML = entries.map(e => `
-      <div class="entry">
-        <div class="entry-head">
-          <span>${formatTime(e.timestamp)}</span>
-        </div>
-        <div class="entry-text">${escapeHTML(e.message)}</div>
-      </div>
-    `).join('');
-  }
+      function renderEntries(entries) {
+         if (entries.length === 0) {
+            entriesEl.innerHTML = '<div class="empty">No entries</div>';
+            return;
+         }
+         entries.sort((a, b) => b.timestamp - a.timestamp); // newest first
+         entriesEl.innerHTML = entries.map(e => `
+            <div class="entry">
+               <div class="entry-head">
+                  <span>${formatTime(e.timestamp)}</span>
+               </div>
+               <div class="entry-text">${escapeHTML(e.message)}</div>
+            </div>
+         `).join('');
+      }
 
-  // Live sync
-  // .on('value', ...) fires immediately with current data, then again every time
-  // ANY user adds an entry — this is what makes it update live for everyone,
-  // not just persist between your own page loads.
-  entriesRef.on('value', snapshot => {
-    const data = snapshot.val() || {};
-    const entries = Object.values(data);
-    renderEntries(entries);
-    statusEl.textContent = '';
-  }, err => {
-    console.error('Firebase read failed', err);
-    statusEl.textContent = 'Could not load entries. Check your Firebase config.';
-    statusEl.classList.add('error');
-  });
+      // Live sync
+      // .on('value', ...) fires immediately with current data, then again every time
+      // ANY user adds an entry — this is what makes it update live for everyone,
+      // not just persist between your own page loads.
+      entriesRef.on('value', snapshot => {
+         const data = snapshot.val() || {};
+         const entries = Object.values(data);
+         renderEntries(entries);
+         statusEl.textContent = '';
+      }, err => {
+         console.error('Firebase read failed', err);
+         statusEl.textContent = 'Could not load entries. Check your Firebase config.';
+         statusEl.classList.add('error');
+      });
 
-  // Submit a new entry
-  form.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const message = msgInput.value.trim();
-    if (!message) return;
+      // Submit a new entry
+      form.addEventListener('submit', async (e) => {
+         e.preventDefault();
+         const message = msgInput.value.trim();
+         if (!message) return;
 
-    submitBtn.disabled = true;
-    submitBtn.textContent = 'Signing...';
-    statusEl.classList.remove('error');
+         submitBtn.disabled = true;
+         submitBtn.textContent = 'Signing...';
+         statusEl.classList.remove('error');
 
-    try {
-      // push() generates a unique key for each entry automatically
-      await entriesRef.push({ message, timestamp: Date.now() });
-      msgInput.value = '';
-    } catch (err) {
-      console.error('Failed to save entry', err);
-      statusEl.textContent = 'Could not save your entry. Please try again.';
-      statusEl.classList.add('error');
-    } finally {
-      submitBtn.disabled = false;
-      submitBtn.textContent = 'submit';
-    }
-  });
-</script>
+         try {
+            // push() generates a unique key for each entry automatically
+            await entriesRef.push({ message, timestamp: Date.now() });
+            msgInput.value = '';
+         } catch (err) {
+            console.error('Failed to save entry', err);
+            statusEl.textContent = 'Could not save your entry. Please try again.';
+            statusEl.classList.add('error');
+         } finally {
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'submit';
+         }
+      });
+   </script>
 
+   <div id="gooperDiv"  style="margin-top: 20%; margin-left: 80%;">
+   <img src="https://i.redd.it/1okrucjxw1d81.gif" alt="gumshoe gooper"/> 
+   </div>
 
-    <div id="gooperDiv"  style="margin-top: 20%; margin-left: 80%;">
-    <img src="https://i.redd.it/1okrucjxw1d81.gif" alt="gumshoe gooper"/> 
-    </div>
+   <!--################################################################-->
+   <script>
+   document.addEventListener("mousemove", (e) => {
+   const dot = document.createElement("div");
+   dot.className = "trail";
+   // dot.textContent = "☆";
+   dot.style.left = e.clientX + "px";
+   dot.style.top = e.clientY + "px";
 
-    <!--################################################################-->
-    <script>
-    document.addEventListener("mousemove", (e) => {
-    const dot = document.createElement("div");
-    dot.className = "trail";
-    // dot.textContent = "☆";
-    dot.style.left = e.clientX + "px";
-    dot.style.top = e.clientY + "px";
+   document.body.appendChild(dot);
 
-    document.body.appendChild(dot);
-
-    setTimeout(() => {
-        dot.remove();
-    }, 800);
-    });
-    </script>
-    <!--################################################################-->
-
+   setTimeout(() => {
+         dot.remove();
+   }, 800);
+   });
+   </script>
+   <!--################################################################-->
 </body>
 </html> 
