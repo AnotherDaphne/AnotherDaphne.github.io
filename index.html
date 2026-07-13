@@ -38,10 +38,36 @@
       <!-- <div class="col">-</div> -->
    </div>
    <div class="break" style="padding:2em;"></div>
-   
    </div>
 
+    <!--################################################################-->
+   <div id="countdown">
+   <div class="time-box"><div id="days" class="number">-</div><div class="label">Days</div></div>
+   <div class="time-box"><div id="hours" class="number">-</div><div class="label">Hours</div></div>
+   <div class="time-box"><div id="minutes" class="number">-</div><div class="label">Minutes</div></div>
+   <div class="time-box"><div id="seconds" class="number">-</div><div class="label">Seconds</div></div>
+   </div>
 
+   <script>
+   const targetDate = new Date("August 4, 2026 14:45:00").getTime();
+
+   setInterval(() => {
+   let diff = targetDate - Date.now();
+
+   if (diff <= 0) {
+      document.getElementById("countdown").innerHTML = "<h1>🎉 Yay :D</h1>";
+      return;
+   }
+   const sec = Math.floor(diff / 1000);
+
+   document.getElementById("days").textContent = Math.floor(sec / 86400);
+   document.getElementById("hours").textContent = Math.floor(sec / 3600) % 24;
+   document.getElementById("minutes").textContent = Math.floor(sec / 60) % 60;
+   document.getElementById("seconds").textContent = sec % 60;
+   }, 1000);
+   </script>
+
+   <!--################################################################-->
    <div id="guestbook">
    <h3>Leave a message</h3>
 
@@ -153,6 +179,7 @@
       });
    </script>
 
+    <!--################################################################-->
    <div id="gooperDiv"  style="margin-top: 20%; margin-left: 80%;">
    <img src="https://i.redd.it/1okrucjxw1d81.gif" alt="gumshoe gooper"/> 
    </div>
