@@ -31,6 +31,7 @@
    <li><a class="backbutton" href="/index.html">&lt;</a></li>
    <li><a class="resetbutton">clear</a></li>
    <li><a class="resetbutton undobutton">undo</a></li>
+   <li><a class="resetbutton savebutton">save</a></li>
 
    <li class="white"></li>
    <li class="red"></li>
@@ -43,6 +44,45 @@
 
    <li><input type="range" id="brushSize" min="1" max="20" value="2"></li>
 </ul>
+
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+
+<script>
+const firebaseConfig = {
+apiKey: "AIzaSyBkUk3ZewNRWdvEtA0dDz6Np_DAio17m4g",
+authDomain: "website-4a137.firebaseapp.com",
+projectId: "website-4a137",
+storageBucket: "website-4a137.firebasestorage.app",
+messagingSenderId: "67261630579",
+appId: "1:67261630579:web:b4d051795cfc43f1544206"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+const drawingsRef = db.ref('drawings');
+
+// Save Button
+const saveButton = document.querySelector(".savebutton");
+
+saveButton.addEventListener("click", (e) => {
+e.stopPropagation();
+saveButton.textContent = "saving...";
+
+const dataURL = canvas.toDataURL("image/png");
+
+drawingsRef.push({ image: dataURL, timestamp: Date.now() })
+   .then(() => { saveButton.textContent = "saved!"; })
+   .catch(err => {
+      console.error("Save failed", err);
+      saveButton.textContent = "error";
+      alert(err.message);
+   })
+   .finally(() => {
+      setTimeout(() => { saveButton.textContent = "save"; }, 1500);
+   });
+});
+</script>
 
 <script>
 const canvas = document.getElementById("canvas");
