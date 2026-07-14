@@ -4,15 +4,25 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Gallery</title>
+<script src="/script.js" defer></script>
 <style>
-body { background:#16161d; color:#fff8e7; font-family: sans-serif; padding: 20px; }
-#gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; margin: 1rem 2.5rem;}
+#confetti { position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+   pointer-events: none; overflow: hidden; z-index: 999; }
+#confetti span { position: absolute; top: -10px; width: 8px; height: 8px; 
+   animation: fallConfetti linear forwards; }
+@keyframes fallConfetti { to { transform: translateY(110vh) rotate(360deg); } }
+</style>
+<style>
+body { background:#16161d; color:#fff8e7; font-family: sans-serif; padding: 20px; margin: 1rem 3rem;}
+#gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
 #gallery img { width: 100%; border-radius: 6px; border: 1px solid #fff8e7; cursor: pointer; }
 .empty { opacity: 0.6; }
 
 #lightbox { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: #16161d; align-items: center;justify-content: center; cursor: pointer; z-index: 100; }
-#lightbox img { max-width: 90%; max-height: 90%; border-radius: 6px; border: 1px solid #fff8e7;}
+   background: #16161d; flex-direction: column; align-items: center;
+   justify-content: center; cursor: pointer; z-index: 100; }
+#lightbox img { max-width: 85%; max-height: 85%; border-radius: 6px; border: 1px solid #fff8e7; }
+#lightbox-caption { margin-top: 12px; color: #fff8e7; font-size: 1rem; }
 
 .backbutton { position:absolute; top: 20px; left: 20px; padding:2px 8px; text-decoration:none; font-size:1.5rem;
     background: #16161d; color:#fff8e7; border-radius: 4px; border-color: #fff8e7; border:solid; border-width:1px; }
@@ -46,6 +56,7 @@ for (let i = 0; i < 300; i++) {
 
 <div id="lightbox">
    <img id="lightbox-img" src="">
+   <div id="lightbox-caption"></div>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
@@ -64,6 +75,12 @@ for (let i = 0; i < 300; i++) {
    const drawingsRef = db.ref('drawings');
    const galleryEl = document.getElementById('gallery');
 
+   function formatTime(ts) {
+   const d = new Date(Number(ts));
+   return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }) +
+          ' ' + d.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
+   }
+
    drawingsRef.on('value', snapshot => {
       const data = snapshot.val() || {};
       const drawings = Object.values(data).sort((a, b) => b.timestamp - a.timestamp);
@@ -73,16 +90,20 @@ for (let i = 0; i < 300; i++) {
          return;
       }
 
-      galleryEl.innerHTML = drawings.map(d => `<img src="${d.image}">`).join('');
+      galleryEl.innerHTML = drawings.map(d =>
+         `<img src="${d.image}" data-timestamp="${d.timestamp}">`
+      ).join('');
    });
 
    // Lightbox
    const lightbox = document.getElementById('lightbox');
    const lightboxImg = document.getElementById('lightbox-img');
+   const lightboxCaption = document.getElementById('lightbox-caption');
 
    galleryEl.addEventListener('click', (e) => {
       if (e.target.tagName === 'IMG') {
          lightboxImg.src = e.target.src;
+         lightboxCaption.textContent = 'saved ' + formatTime(e.target.dataset.timestamp);
          lightbox.style.display = 'flex';
       }
    });

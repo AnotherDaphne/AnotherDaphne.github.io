@@ -3,7 +3,6 @@
 <head>
 <meta charset="UTF-8" />
 <title>Lines</title>
-
 <style>
    body{background:#16161d; height: 100%; overflow: hidden; color:#fff8e7; user-select: none;}
    p {position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);}
@@ -12,14 +11,6 @@
    li {display:inline; background: #16161d; color:#fff8e7; border:solid; border-width:1px; border-radius: 4px; border-color: #fff8e7;
          padding:4px 12px;}
    li:hover {cursor:pointer; background: #fff8e7; color:#16161d; transition:0.3s}
-
-   #stars { position: fixed; top: 0; left: 0; width: 100%; height: 200%; z-index: -1; overflow: hidden;
-      animation: scrollStars 60s linear infinite; }
-   #stars span { position: absolute; width: 2px; height: 2px; background: #fff8e7; border-radius: 50%; }
-   @keyframes scrollStars {
-      from { transform: translateY(-50%); }
-      to   { transform: translateY(0); }
-   }
 
    .backbutton { position:absolute; top: 20px; left: 20px; padding:2px 8px; text-decoration:none; font-size:1.5rem; z-index:10;
          background: #16161d; color:#fff8e7; border-radius: 4px; border-color: #fff8e7; border:solid; border-width:1px; }
@@ -34,12 +25,10 @@
    .backbutton { font-size: 2.2rem; padding: 8px 16px; top: 12px; left: 12px; }
    p { width: 90%; font-size: 2rem; line-height: 1.4; text-align: center; }
 }
-
 </style>
       
 </head>
 <body>
-<div id="stars"></div>
 <canvas id="crackCanvas"></canvas>
 <p>click anywhere</p>
 
@@ -48,16 +37,6 @@
    <li class="colorbutton">color</li>
    <li class="resetbutton">reset</li>
 </ul>
-
-<script>
-const starsEl = document.getElementById('stars');
-for (let i = 0; i < 300; i++) {
-  const s = document.createElement('span');
-  s.style.left = Math.random() * 100 + '%';
-  s.style.top = Math.random() * 100 + '%'; // spread across the doubled height
-  starsEl.appendChild(s);
-}
-</script>
 
 <script>
 const canvas = document.getElementById("crackCanvas");
@@ -124,6 +103,5 @@ function createCrack(x, y) {
    }
 }
 </script>
-
 </body>
 </html>

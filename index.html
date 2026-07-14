@@ -8,7 +8,7 @@
    <meta name="viewport" content="width=device-width, initial-scale=1" />
 
    <link rel="stylesheet" href="/stylesheet.css" />
-   <!-- <script src="/script.js" defer></script> -->
+   <script src="/script.js" defer></script>
 </head>
 
 <body>
@@ -19,6 +19,7 @@
    </div>
    <p>There are some things on this website</p>
    <small>you can look at them if you want. or not, i don't care</small>
+   <button id="partyButton">party mode</button>
 
    <div class="break" style="padding:2em;"></div>
 
@@ -38,168 +39,141 @@
       <div class="col"> <a href="/things/gallery.html">look at some drawings</a></div>
    </div>
    <div class="break" style="padding:2em;"></div>
+   <!-- <div class="flex-grid"> 
+      <div class="col"><a href="/things/file.html"></a>-</a></div>
+      <div class="col"><a href="/things/file.html"></a>silly name generator</a></div>
+      <div class="col"><a href="/things/file.html"></a>stare at the sun until you go blind</a></div>
+      <div class="col"><a href="/things/file.html"></a>hypotrochoid</a></div>
+      <div class="col"><a href="/things/file.html"></a>-</a></div>
    </div>
-
-    <!--################################################################-->
-   <div id="countdown">
-   <div class="time-box"><div id="days" class="number">-</div><div class="label">Days</div></div>
-   <div class="time-box"><div id="hours" class="number">-</div><div class="label">Hours</div></div>
-   <div class="time-box"><div id="minutes" class="number">-</div><div class="label">Minutes</div></div>
-   <div class="time-box"><div id="seconds" class="number">-</div><div class="label">Seconds</div></div>
-   </div>
-
-   <script>
-   const targetDate = new Date("August 4, 2026 14:45:00").getTime();
-
-   setInterval(() => {
-   let diff = targetDate - Date.now();
-
-   if (diff <= 0) {
-      document.getElementById("countdown").innerHTML = "<h1>🎉 Yay :D</h1>";
-      return;
-   }
-   const sec = Math.floor(diff / 1000);
-
-   document.getElementById("days").textContent = Math.floor(sec / 86400);
-   document.getElementById("hours").textContent = Math.floor(sec / 3600) % 24;
-   document.getElementById("minutes").textContent = Math.floor(sec / 60) % 60;
-   document.getElementById("seconds").textContent = sec % 60;
-   }, 1000);
-   </script>
+   <div class="break" style="padding:2em;"></div> -->
 
    <!--################################################################-->
+<div id="countdown-guestbook-row">
+
    <div id="guestbook">
-   <h3>Leave a message</h3>
-
-   <form id="form">
-      <textarea id="message" placeholder="type something..." maxlength="280" required></textarea>
-      <button type="submit">Submit</button>
-   </form>
-
-   <div id="status"></div>
-   <div id="entries"></div>
+      <h3>Leave a message</h3>
+      <form id="form">
+         <textarea id="message" placeholder="type something..." maxlength="280" required></textarea>
+         <button type="submit">Submit</button>
+      </form>
+      <div id="status"></div>
+      <div id="entries"></div>
    </div>
 
-      <!-- Firebase SDKs (compat version — simplest to drop in via script tags) -->
-   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+   <div id="countdown">
+      <div class="time-box"><div id="days" class="number">-</div><div class="label">Days</div></div>
+      <div class="time-box"><div id="hours" class="number">-</div><div class="label">Hours</div></div>
+      <div class="time-box"><div id="minutes" class="number">-</div><div class="label">Minutes</div></div>
+      <div class="time-box"><div id="seconds" class="number">-</div><div class="label">Seconds</div></div>
+   </div>
 
-   <script type="module">
-      // Firebase config here 
-      // Import the functions you need from the SDKs you need
-      import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
-      // TODO: Add SDKs for Firebase products that you want to use
-      // https://firebase.google.com/docs/web/setup#available-libraries
+</div>
+<!--################################################################-->
 
-      // Your web app's Firebase configuration
-      const firebaseConfig = {
-         apiKey: "AIzaSyBkUk3ZewNRWdvEtA0dDz6Np_DAio17m4g",
-         authDomain: "website-4a137.firebaseapp.com",
-         projectId: "website-4a137",
-         storageBucket: "website-4a137.firebasestorage.app",
-         messagingSenderId: "67261630579",
-         appId: "1:67261630579:web:b4d051795cfc43f1544206"
-      };
+<!-- Firebase SDKs (compat version — simplest to drop in via script tags) -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 
-      firebase.initializeApp(firebaseConfig);
-      const db = firebase.database();
-      const entriesRef = db.ref('entries'); // all guestbook entries live under this node
+<script type="module">
+   // Firebase config here 
+   // Import the functions you need from the SDKs you need
+   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
+   // TODO: Add SDKs for Firebase products that you want to use
+   // https://firebase.google.com/docs/web/setup#available-libraries
 
-      const form      = document.getElementById('form');
-      const msgInput  = document.getElementById('message');
-      const statusEl  = document.getElementById('status');
-      const entriesEl = document.getElementById('entries');
-      const submitBtn = form.querySelector('button');
+   // Your web app's Firebase configuration
+   const firebaseConfig = {
+      apiKey: "AIzaSyBkUk3ZewNRWdvEtA0dDz6Np_DAio17m4g",
+      authDomain: "website-4a137.firebaseapp.com",
+      projectId: "website-4a137",
+      storageBucket: "website-4a137.firebasestorage.app",
+      messagingSenderId: "67261630579",
+      appId: "1:67261630579:web:b4d051795cfc43f1544206"
+   };
 
-      function escapeHTML(str) {
-         const div = document.createElement('div');
-         div.textContent = str;
-         return div.innerHTML;
+   firebase.initializeApp(firebaseConfig);
+   const db = firebase.database();
+   const entriesRef = db.ref('entries'); // all guestbook entries live under this node
+
+   const form      = document.getElementById('form');
+   const msgInput  = document.getElementById('message');
+   const statusEl  = document.getElementById('status');
+   const entriesEl = document.getElementById('entries');
+   const submitBtn = form.querySelector('button');
+
+   function escapeHTML(str) {
+      const div = document.createElement('div');
+      div.textContent = str;
+      return div.innerHTML;
+   }
+
+   function formatTime(ts) {
+      const d = new Date(ts);
+      return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) +
+               ' ' + d.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
+   }
+
+   function renderEntries(entries) {
+      if (entries.length === 0) {
+         entriesEl.innerHTML = '<div class="empty">No entries</div>';
+         return;
       }
-
-      function formatTime(ts) {
-         const d = new Date(ts);
-         return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) +
-                  ' ' + d.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
-      }
-
-      function renderEntries(entries) {
-         if (entries.length === 0) {
-            entriesEl.innerHTML = '<div class="empty">No entries</div>';
-            return;
-         }
-         entries.sort((a, b) => b.timestamp - a.timestamp); // newest first
-         entriesEl.innerHTML = entries.map(e => `
-            <div class="entry">
-               <div class="entry-head">
-                  <span>${formatTime(e.timestamp)}</span>
-               </div>
-               <div class="entry-text">${escapeHTML(e.message)}</div>
+      entries.sort((a, b) => b.timestamp - a.timestamp); // newest first
+      entriesEl.innerHTML = entries.map(e => `
+         <div class="entry">
+            <div class="entry-head">
+               <span>${formatTime(e.timestamp)}</span>
             </div>
-         `).join('');
-      }
+            <div class="entry-text">${escapeHTML(e.message)}</div>
+         </div>
+      `).join('');
+   }
 
-      // Live sync
-      // .on('value', ...) fires immediately with current data, then again every time
-      // ANY user adds an entry — this is what makes it update live for everyone,
-      // not just persist between your own page loads.
-      entriesRef.on('value', snapshot => {
-         const data = snapshot.val() || {};
-         const entries = Object.values(data);
-         renderEntries(entries);
-         statusEl.textContent = '';
-      }, err => {
-         console.error('Firebase read failed', err);
-         statusEl.textContent = 'Could not load entries. Check your Firebase config.';
+   // Live sync
+   // .on('value', ...) fires immediately with current data, then again every time
+   // ANY user adds an entry — this is what makes it update live for everyone,
+   // not just persist between your own page loads.
+   entriesRef.on('value', snapshot => {
+      const data = snapshot.val() || {};
+      const entries = Object.values(data);
+      renderEntries(entries);
+      statusEl.textContent = '';
+   }, err => {
+      console.error('Firebase read failed', err);
+      statusEl.textContent = 'Could not load entries. Check your Firebase config.';
+      statusEl.classList.add('error');
+   });
+
+   // Submit a new entry
+   form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const message = msgInput.value.trim();
+      if (!message) return;
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Signing...';
+      statusEl.classList.remove('error');
+
+      try {
+         // push() generates a unique key for each entry automatically
+         await entriesRef.push({ message, timestamp: Date.now() });
+         msgInput.value = '';
+      } catch (err) {
+         console.error('Failed to save entry', err);
+         statusEl.textContent = 'Could not save your entry. Please try again.';
          statusEl.classList.add('error');
-      });
-
-      // Submit a new entry
-      form.addEventListener('submit', async (e) => {
-         e.preventDefault();
-         const message = msgInput.value.trim();
-         if (!message) return;
-
-         submitBtn.disabled = true;
-         submitBtn.textContent = 'Signing...';
-         statusEl.classList.remove('error');
-
-         try {
-            // push() generates a unique key for each entry automatically
-            await entriesRef.push({ message, timestamp: Date.now() });
-            msgInput.value = '';
-         } catch (err) {
-            console.error('Failed to save entry', err);
-            statusEl.textContent = 'Could not save your entry. Please try again.';
-            statusEl.classList.add('error');
-         } finally {
-            submitBtn.disabled = false;
-            submitBtn.textContent = 'submit';
-         }
-      });
-   </script>
-
-    <!--################################################################-->
+      } finally {
+         submitBtn.disabled = false;
+         submitBtn.textContent = 'submit';
+      }
+   });
+</script>
+   
+<!--################################################################-->
    <div id="gooperDiv"  style="margin-top: 20%; margin-left: 80%;">
    <img src="https://i.redd.it/1okrucjxw1d81.gif" alt="gumshoe gooper"/> 
    </div>
 
-   <!--################################################################-->
-   <script>
-   document.addEventListener("mousemove", (e) => {
-   const dot = document.createElement("div");
-   dot.className = "trail";
-   // dot.textContent = "☆";
-   dot.style.left = e.clientX + "px";
-   dot.style.top = e.clientY + "px";
-
-   document.body.appendChild(dot);
-
-   setTimeout(() => {
-         dot.remove();
-   }, 800);
-   });
-   </script>
-   <!--################################################################-->
 </body>
 </html> 
