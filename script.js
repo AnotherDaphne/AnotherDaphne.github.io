@@ -1,20 +1,29 @@
-const targetDate = new Date("August 4, 2026 14:45:00").getTime();
-   setInterval(() => {
-   let diff = targetDate - Date.now();
+const targetDates = [
+  new Date("August 4, 2026 14:45:00").getTime(),
+  new Date("Auguest 28, 2026 15:30:00").getTime(),
+];
 
-   if (diff <= 0) {
-      document.getElementById("countdown").innerHTML = "<h1>🎉 Yay :D</h1>";
-      return;
-   }
-   const sec = Math.floor(diff / 1000);
+setInterval(() => {
+  const now = Date.now();
 
-   document.getElementById("days").textContent = Math.floor(sec / 86400);
-   document.getElementById("hours").textContent = Math.floor(sec / 3600) % 24;
-   document.getElementById("minutes").textContent = Math.floor(sec / 60) % 60;
-   document.getElementById("seconds").textContent = sec % 60;
-   }, 1000);
+  // Find the first date in the list that hasn't passed yet
+  const nextTarget = targetDates.find(t => t > now);
+
+  if (!nextTarget) {
+    document.getElementById("countdown").innerHTML = "<h1>🎉 Yay :D</h1>";
+    return;
+  }
+
+  const sec = Math.floor((nextTarget - now) / 1000);
+
+  document.getElementById("days").textContent = Math.floor(sec / 86400);
+  document.getElementById("hours").textContent = Math.floor(sec / 3600) % 24;
+  document.getElementById("minutes").textContent = Math.floor(sec / 60) % 60;
+  document.getElementById("seconds").textContent = sec % 60;
+}, 1000);
 
 
+// ######################################
 document.addEventListener("mousemove", (e) => {
    const dot = document.createElement("div");
    dot.className = "trail";

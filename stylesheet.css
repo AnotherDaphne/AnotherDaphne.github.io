@@ -104,7 +104,7 @@ button:disabled { background: #6b6a68; cursor: default;}
 
 #partyButton { color: #fff8E7; background:#16161d; border: 2px solid #fff8E7;  
    border-radius: 4px;  margin:10px;  font-size:1rem; padding: 10px; cursor: pointer; transition: 0.3s; 
-   position:fixed; top: 110px; right:50px; }
+   position:absolute; top: 110px; right:50px; }
 #partyButton:hover {background-color: #fff8E7;  color: #16161d; 
    background-image: linear-gradient(90deg, #00C0FF 0%, #FFCF00 49%, #FC4F4F 100%); transition: 0.3s;}
 #partyButton.is-active {background-color: #fff8E7;  color: #16161d;  
