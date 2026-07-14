@@ -1,24 +1,22 @@
 <!DOCTYPE html>
 <html>
 <head>
-
 <title>Rock Paper Scissors</title>
 <meta charset="utf-8" />
 <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="stylesheet" href="/things/rps.css" />
 
-   <style>
-   .backbutton { position:absolute; top: 20px; left: 20px; padding:2px 8px; text-decoration:none; font-size:1.5rem; z-index:10;
-      background: #16161d; color:#fff8e7; border-radius: 4px; border-color: #fff8e7; border:solid; border-width:1px; }
-   .backbutton:hover {cursor:pointer; background: #fff8e7; color:#16161d; transition:0.3s} 
-   /* make larger on mobile */
-   @media (max-width: 768px) {
-      .backbutton {font-size: 2rem; padding: 4px 12px;}
-      .gesture-label {font-size:1.25rem}
-      .verdict {font-size:2.5rem;}
-   }
-   </style>
+<style>
+.backbutton { position:absolute; top: 20px; left: 20px; padding:2px 8px; text-decoration:none; font-size:1.5rem; z-index:10;
+  background: #16161d; color:#fff8e7; border-radius: 4px; border-color: #fff8e7; border:solid; border-width:1px; }
+.backbutton:hover {cursor:pointer; background: #fff8e7; color:#16161d; transition:0.3s}
+@media (max-width: 768px) {
+  .backbutton {font-size: 2rem; padding: 4px 12px;}
+  .gesture-label {font-size:1.25rem}
+  .verdict {font-size:2.5rem;}
+}
+</style>
 </head>
 
 <body>
@@ -28,17 +26,16 @@
 <canvas id="canvas"></canvas>
 
 <div id="scoreboard">
-   wins <span id="score-win">0</span> ✦ draws <span id="score-draw">0</span> ✦ losses <span id="score-lose">0</span>
+  wins <span id="score-win">0</span> ✦ draws <span id="score-draw">0</span> ✦ losses <span id="score-lose">0</span>
 </div>
 
 <div id="hud">
-   <div id="hud-inner">
-      <div id="countdown"></div>
-      <div id="gesture-label">show your hand</div>
-      <div id="result-row" style="display:none"></div>
-      <div id="verdict" style="display:none"></div>
-      <div id="hint">hold your gesture steady for 3 seconds to start</div>
-   </div>
+  <div id="hud-inner">
+    <div id="gesture-label">show your hand</div>
+    <div id="result-row" style="display:none"></div>
+    <div id="verdict" style="display:none"></div>
+    <div id="hint">hold your gesture steady for 3 seconds to start</div>
+  </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
@@ -46,171 +43,148 @@
 <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
 
 <script>
-   const video   = document.getElementById('video');
-   const canvas  = document.getElementById('canvas');
-   const ctx     = canvas.getContext('2d');
+const video  = document.getElementById('video');
+const canvas = document.getElementById('canvas');
+const ctx    = canvas.getContext('2d');
 
-   canvas.width  = window.innerWidth;
-   canvas.height = window.innerHeight;
+canvas.width  = window.innerWidth;
+canvas.height = window.innerHeight;
 
-   // ── Gesture detection ───────────────────────────────────────────────────────
+// Gesture detection
+const FINGERS = [
+  { tip: 8,  base: 6  }, // index
+  { tip: 12, base: 10 }, // middle
+  { tip: 16, base: 14 }, // ring
+  { tip: 20, base: 18 }, // pinky
+];
 
-   // Landmark indices for each fingertip and the knuckle two joints below it
-   const FINGERS = [
-      { tip: 8,  base: 6  }, // index
-      { tip: 12, base: 10 }, // middle
-      { tip: 16, base: 14 }, // ring
-      { tip: 20, base: 18 }, // pinky
-   ];
+const isExtended = (landmarks, finger) => landmarks[finger.tip].y < landmarks[finger.base].y;
 
-   // Returns true if a finger is extended (tip above its base knuckle in image coords)
-   function isExtended(landmarks, finger) {
-      return landmarks[finger.tip].y < landmarks[finger.base].y;
-   }
+function classifyGesture(landmarks) {
+  const extended = FINGERS.map(f => isExtended(landmarks, f));
+  const count = extended.filter(Boolean).length;
 
-   // Classify the hand into 'rock', 'paper', or 'scissors' (null = unclear)
-   function classifyGesture(landmarks) {
-      const extended = FINGERS.map(f => isExtended(landmarks, f));
-      const count = extended.filter(Boolean).length;
+  if (count === 0) return 'rock';
+  if (count === 4) return 'paper';
+  if (extended[0] && extended[1] && !extended[2] && !extended[3]) return 'scissors';
+  return null;
+}
 
-      if (count === 0) return 'rock';
-      if (count === 4) return 'paper';
-      if (extended[0] && extended[1] && !extended[2] && !extended[3]) return 'scissors';
-      return null; // if ambiguous
-   }
+// Game state
+const EMOJIS  = { rock: '✊', paper: '✋', scissors: '✌️' };
+const CHOICES = ['rock', 'paper', 'scissors'];
+const BEATS   = { rock: 'scissors', scissors: 'paper', paper: 'rock' };
+const HOLD_MS = 3000;
 
-   // ── Game state ──────────────────────────────────────────────────────────────
+let phase = 'waiting'; // waiting | result
+let score = { win: 0, draw: 0, lose: 0 };
+let holdGesture = null;
+let holdStart = null;
 
-   const EMOJIS   = { rock: '✊', paper: '✋', scissors: '✌️' };
-   const CHOICES  = ['rock', 'paper', 'scissors'];
-   const BEATS    = { rock: 'scissors', scissors: 'paper', paper: 'rock' };
+const elLabel = document.getElementById('gesture-label');
+const elResultRow = document.getElementById('result-row');
+const elVerdict = document.getElementById('verdict');
+const elScoreWin = document.getElementById('score-win');
+const elScoreDraw = document.getElementById('score-draw');
+const elScoreLose = document.getElementById('score-lose');
 
-   let phase          = 'waiting';  // waiting | result
-   let score          = { win: 0, draw: 0, lose: 0 };
-   let holdGesture    = null;       // gesture being held to auto-start
-   let holdStart      = null;
+function showResult(playerGesture, opponent, outcome) {
+  elLabel.textContent = '';
+  elResultRow.innerHTML =
+    `<span>${EMOJIS[playerGesture]}</span>` +
+    `<span style="font-size:3rem;color:#fff8e7">vs</span>` +
+    `<span>${EMOJIS[opponent]}</span>`;
+  elResultRow.style.display = 'flex';
 
-   const elCountdown   = document.getElementById('countdown');
-   const elGestureLabel = document.getElementById('gesture-label');
-   const elResultRow   = document.getElementById('result-row');
-   const elVerdict     = document.getElementById('verdict');
-   const elScoreWin    = document.getElementById('score-win');
-   const elScoreDraw   = document.getElementById('score-draw');
-   const elScoreLose   = document.getElementById('score-lose');
+  elVerdict.textContent = { win: 'you win', lose: 'you lose', draw: 'draw' }[outcome];
+  elVerdict.className = outcome;
+  elVerdict.style.display = 'block';
+}
 
-   let currentGesture = null;
+function resetToWaiting() {
+  phase = 'waiting';
+  elResultRow.style.display = 'none';
+  elVerdict.style.display = 'none';
+  elLabel.textContent = 'show your hand';
+}
 
-   function resolveAfterHold(gesture) {
-      elResultRow.style.display = 'none';
-      elVerdict.style.display   = 'none';
-      elCountdown.textContent   = '';
-      resolveRound(gesture);
-   }
+function resolveRound(playerGesture) {
+  const opponent = CHOICES[Math.floor(Math.random() * 3)];
+  const outcome =
+    playerGesture === opponent ? 'draw' :
+    BEATS[playerGesture] === opponent ? 'win' : 'lose';
 
-   function resolveRound(playerGesture) {
-      const opponent = CHOICES[Math.floor(Math.random() * 3)];
-      let outcome;
+  score[outcome]++;
+  elScoreWin.textContent  = score.win;
+  elScoreDraw.textContent = score.draw;
+  elScoreLose.textContent = score.lose;
 
-      if (playerGesture === opponent)         outcome = 'draw';
-      else if (BEATS[playerGesture] === opponent) outcome = 'win';
-      else                                    outcome = 'lose';
+  showResult(playerGesture, opponent, outcome);
+  phase = 'result';
 
-      score[outcome]++;
-      elScoreWin.textContent  = score.win;
-      elScoreDraw.textContent = score.draw;
-      elScoreLose.textContent = score.lose;
+  setTimeout(resetToWaiting, 2500);
+}
 
-      elCountdown.textContent    = '';
-      elGestureLabel.textContent = '';
-      elResultRow.innerHTML      =
-         `<span title="you">${EMOJIS[playerGesture]}</span>` +
-         `<span style="font-size:3rem;color:#fff8e7">vs</span>` +
-         `<span title="opponent">${EMOJIS[opponent]}</span>`;
-      elResultRow.style.display  = 'flex';
+// MediaPipe setup
+const hands = new Hands({
+  locateFile: file => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
+});
 
-      const labels = { win: 'you win', lose: 'you lose', draw: 'draw' };
-      elVerdict.textContent  = labels[outcome];
-      elVerdict.className    = outcome;
-      elVerdict.style.display = 'block';
+hands.setOptions({
+  maxNumHands: 1,
+  modelComplexity: 1,
+  minDetectionConfidence: 0.5,
+  minTrackingConfidence: 0.5
+});
 
-      phase = 'result';
+hands.onResults(results => {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  const landmarks = results.multiHandLandmarks[0];
 
-      // timeout to reset
-      setTimeout(() => {
-         phase = 'waiting';
-         elResultRow.style.display = 'none';
-         elVerdict.style.display   = 'none';
-         elGestureLabel.textContent = 'show your hand';
-      }, 2500);
-   }
+  if (!landmarks) {
+    holdGesture = null;
+    holdStart = null;
+    if (phase === 'waiting') elLabel.textContent = 'show your hand';
+    return;
+  }
 
-   // ── MediaPipe setup ─────────────────────────────────────────────────────────
+  drawConnectors(ctx, landmarks, HAND_CONNECTIONS, { color: '#fff8e7', lineWidth: 2 });
+  drawLandmarks(ctx, landmarks, { color: '#fff8e7', lineWidth: 1, radius: 3 });
 
-   const hands = new Hands({
-      locateFile: file => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
-   });
+  if (phase !== 'waiting') return;
 
-   hands.setOptions({
-      maxNumHands: 1,
-      modelComplexity: 1,
-      minDetectionConfidence: 0.5,
-      minTrackingConfidence: 0.5
-   });
+  const gesture = classifyGesture(landmarks);
 
-   hands.onResults(results => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+  if (!gesture) {
+    holdGesture = null;
+    holdStart = null;
+    elLabel.textContent = 'show your hand';
+    return;
+  }
 
-      if (!results.multiHandLandmarks.length) {
-         holdGesture = null;
-         holdStart = null;
-         elGestureLabel.textContent = 'show your hand';
-         elCountdown.textContent = '';
-         return;
-      }
+  if (holdGesture !== gesture) {
+    holdGesture = gesture;
+    holdStart = Date.now();
+  }
 
-      const landmarks = results.multiHandLandmarks[0];
+  const elapsed = Date.now() - holdStart;
+  const remaining = Math.max(0, 3 - Math.floor(elapsed / 1000));
+  elLabel.textContent = `${EMOJIS[gesture]}  ${gesture} - hold ${remaining}s`;
 
-      // Draw skeleton (mirroring is handled by CSS on the canvas element)
-      drawConnectors(ctx, landmarks, HAND_CONNECTIONS, { color: '#fff8e7', lineWidth: 2 });
-      drawLandmarks(ctx, landmarks, { color: '#fff8e7', lineWidth: 1, radius: 3 });
+  if (elapsed >= HOLD_MS) {
+    resolveRound(gesture);
+    holdGesture = null;
+    holdStart = null;
+  }
+});
 
-      const gesture = classifyGesture(landmarks);
+const camera = new Camera(video, {
+  onFrame: async () => { await hands.send({ image: video }); },
+  width: 1280,
+  height: 720
+});
 
-      currentGesture = gesture;
-
-      if (phase === 'waiting') {
-         if (gesture) {
-            if (holdGesture === gesture) {
-               const elapsed = holdStart ? Date.now() - holdStart : 0;
-               const remaining = Math.max(0, 3 - Math.floor(elapsed / 1000));
-               elGestureLabel.textContent = `${EMOJIS[gesture]}  ${gesture} - hold ${remaining}s`;
-
-               if (elapsed >= 3000) {
-                  resolveAfterHold(gesture);
-                  holdGesture = null;
-                  holdStart = null;
-               }
-            } else {
-               holdGesture = gesture;
-               holdStart = Date.now();
-               elGestureLabel.textContent = `${EMOJIS[gesture]}  ${gesture} - hold 3s to start`;
-            }
-         } else {
-            holdGesture = null;
-            holdStart = null;
-            elGestureLabel.textContent = 'show your hand';
-         }
-
-      }
-   });
-
-   const camera = new Camera(video, {
-      onFrame: async () => { await hands.send({ image: video }); },
-      width: 1280,
-      height: 720
-   });
-
-   camera.start();
+camera.start();
 </script>
 </body>
 </html>

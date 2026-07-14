@@ -25,9 +25,6 @@ body {  background: #16161d;  color: #fff8e7;  font-family: sans-serif;  overflo
       background: rgba(22, 22, 29, 0.45); border-radius: 1.5rem; padding: 2rem 3rem; backdrop-filter: blur(12px);
 }
 
-/* Big number during countdown */
-#countdown {font-size: 10rem; font-weight: bold; line-height: 1; color: #fff8e7; text-shadow: 0 0 40px rgba(22, 22, 29,0.4); transition: opacity 0.2s;}
-
 /* current gesture */
 #gesture-label {  font-size: 2rem;  color: #6b6a68; }
 
