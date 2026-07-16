@@ -172,8 +172,26 @@
    
 <!--################################################################-->
    <div id="gooperDiv"  style="margin-top: 20%; margin-left: 80%;">
-   <img src="https://i.redd.it/1okrucjxw1d81.gif" alt="gumshoe gooper"/> 
+   <img id="gooperButton" src="/assets/gumshoe-gooper.gif" alt="gumshoe gooper"/>
    </div>
 
+   <script>
+   const threshold = 5;
+   let count = 0;
+   const gooper = document.getElementById('gooperButton');
+
+   gooper.addEventListener('click', () => {
+      count++;
+      if (count >= threshold) {
+         gooper.src = '/assets/explosion.gif';
+         gooper.style.width = '128px';
+
+         gooper.style.pointerEvents = 'none';
+         setTimeout(() => {
+        gooper.style.visibility = 'hidden';
+         }, 2000);
+      }
+   });
+   </script>
 </body>
 </html> 
