@@ -64,9 +64,10 @@ textarea { background: #16161d; border: 1px solid #6b6a68; color: #fff8e7; paddi
    font-size: 1rem; border-radius: 4px; resize: vertical; min-height: 70px; }
 textarea:focus { outline: none; border-color: #6b6a68;}
 
-button { background: #fff8e7; color: #16161d; border: none; padding: 0.6rem 1rem;
+button { color: #fff8e7; background: #16161d; border: solid 2px #fff8e7; padding: 0.6rem 1rem; 
    font-size: 1rem; border-radius: 4px; cursor: pointer;}
 button:disabled { background: #6b6a68; cursor: default;}
+button:hover { background: #fff8e7; color: #16161d; transition: 0.3s;}
 
 #status { font-size: 0.8rem; color: #6b6a68; margin-bottom: 1rem; min-height: 1rem;}
 #status.error { color: #cc3333;}

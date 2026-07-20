@@ -39,14 +39,14 @@
       <div class="col"> <a href="/things/gallery.html">look at some drawings</a></div>
    </div>
    <div class="break" style="padding:2em;"></div>
-   <!-- <div class="flex-grid"> 
-      <div class="col"><a href="/things/file.html"></a>-</a></div>
-      <div class="col"><a href="/things/file.html"></a>silly name generator</a></div>
-      <div class="col"><a href="/things/file.html"></a>stare at the sun until you go blind</a></div>
+   <div class="flex-grid"> 
+      <!-- <div class="col"><a href="/things/file.html"></a>-</a></div> -->
+      <div class="col"><a href="/things/namegenerator.html">silly name generator</a></a></div>
+      <!-- <div class="col"><a href="/things/file.html"></a>stare at the sun until you go blind</a></div>
       <div class="col"><a href="/things/file.html"></a>hypotrochoid</a></div>
-      <div class="col"><a href="/things/file.html"></a>-</a></div>
+      <div class="col"><a href="/things/file.html"></a>-</a></div> -->
    </div>
-   <div class="break" style="padding:2em;"></div> -->
+   <div class="break" style="padding:2em;"></div>
 
    <!--################################################################-->
 <div id="countdown-guestbook-row">
@@ -171,14 +171,18 @@
 </script>
    
 <!--################################################################-->
-   <div id="gooperDiv"  style="margin-top: 20%; margin-left: 80%;">
+   <div id="flashbang" style="position:fixed; top:0; left:0; width:100vw; height:100vh; background:white; opacity:0; pointer-events:none; z-index:9999; transition:opacity 0.1s;"></div>
+   <div id="gooperDiv"  style="margin-top: 20%; margin-left: 80%; margin-bottom: 50px;">
    <img id="gooperButton" src="/assets/gumshoe-gooper.gif" alt="gumshoe gooper"/>
+   <button id="reviveGooper" style="visibility: hidden;">Revive Gooper</button>
    </div>
 
    <script>
    const threshold = 5;
    let count = 0;
    const gooper = document.getElementById('gooperButton');
+   const revive = document.getElementById('reviveGooper');
+   const flashbang = document.getElementById('flashbang');
 
    gooper.addEventListener('click', () => {
       count++;
@@ -188,10 +192,25 @@
 
          gooper.style.pointerEvents = 'none';
          setTimeout(() => {
-        gooper.style.visibility = 'hidden';
+            gooper.style.visibility = 'hidden';
          }, 2000);
       }
+      setTimeout(() => {
+            revive.style.visibility = 'visible';
+            gooper.src = '/assets/gumshoe-gooper.gif';
+         }, 10000);
    });
-   </script>
+
+   revive.addEventListener('click', () => {
+      revive.style.visibility = 'hidden';
+      gooper.style.visibility = 'visible';
+
+      // flash white
+      flashbang.style.opacity = '1';
+      setTimeout(() => {
+         flashbang.style.opacity = '0';
+      }, 1000);
+   });
+</script>
 </body>
 </html> 
