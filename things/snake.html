@@ -13,13 +13,19 @@
 @keyframes fallConfetti { to { transform: translateY(110vh) rotate(360deg); } }
 </style>
 <style>
-  body { background: #16161d; color: #fff8e7; font-family: sans-serif; user-select: none; margin:0; }
-  canvas { display: block; border: 1px solid #6b6a68; }
+  body { background: #16161d; color: #fff8e7; font-family: sans-serif; user-select: none; margin:0px; }
+  canvas { display: block; border: 2px solid #fff8e7; border-radius:4px;}
   .everything { margin-top: 5%; display: flex; flex-direction: column; align-items: center; justify-content: center; }
 
-  #score, #text { font-size: 1rem; letter-spacing: 0.05rem; color: #6b6a68; margin: 5px; }
-  #score span { color: #fff8e7; }
+  #score, #text { font-size: 1rem; letter-spacing: 0.05rem; color: #fff8e7; margin: 5px; }
+  #scoreboard {position:absolute; top: 150px; right: 400px; border:solid 2px #fff8e7; border-radius:4px; 
+    display: flex; flex-direction: column; align-items: center; justify-content: center;}
+  #scoreboard p {font-size:1.25rem;}
 
+  #scores {list-style:none; padding:0; margin:8px;}
+  #scores li {display:flex; align-items: center; gap: 12px; padding:6px 12px;}
+  .date {font-size:0.85rem; color:#6b6a68;}
+  
   .backbutton { position: absolute; top: 20px; left: 20px; padding: 2px 8px; text-decoration: none; font-size: 1.5rem;
     background: #16161d; color: #fff8e7; border-radius: 4px; border: solid 1px #fff8e7; }
   .backbutton:hover { cursor: pointer; background: #fff8e7; color: #16161d; transition: 0.3s; }
@@ -33,15 +39,21 @@
    }
 </style>
 </head>
-<body>
-  <a class="backbutton" href="/index.html">&lt;</a>
-  <div id="stars"></div>
 
-  <div class="everything">
-    <div id="score">score <span id="score-val">0</span></div>
-    <canvas id="canvas"></canvas>
-    <div id="text">arrow keys to move</div>
-  </div>
+<body>
+<a class="backbutton" href="/index.html">&lt;</a>
+<div id="stars"></div>
+
+<div class="everything">
+  <div id="score">score <span id="score-val">0</span></div>
+  <canvas id="canvas"></canvas>
+  <div id="text">arrow keys to move</div>
+  
+  <div id="scoreboard">
+    <p>Top Scores</p>
+    <ol id="scores"></ol>
+</div>
+</div>
 
 <script>
 const starsEl = document.getElementById('stars');
@@ -51,6 +63,24 @@ for (let i = 0; i < 300; i++) {
   s.style.top = Math.random() * 100 + '%'; // spread across the doubled height
   starsEl.appendChild(s);
 }
+</script>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+
+<script>
+const firebaseConfig = {
+apiKey: "AIzaSyBkUk3ZewNRWdvEtA0dDz6Np_DAio17m4g",
+authDomain: "website-4a137.firebaseapp.com",
+projectId: "website-4a137",
+storageBucket: "website-4a137.firebasestorage.app",
+messagingSenderId: "67261630579",
+appId: "1:67261630579:web:b4d051795cfc43f1544206"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+const scoresRef = firebase.database().ref("snakeScores");
 </script>
 
 <script>
@@ -87,7 +117,7 @@ function init() {
 function gameOver() {
   running = false;
   clearInterval(interval);
-  textEl.textContent = isTouch ? 'game over - tap to play again' : 'game over - press space to play again';
+  textEl.textContent = isTouch ? 'game over - tap to play again' : 'game over - press space to play again - press s to save score';
 }
 
 function placeFood() {
@@ -164,6 +194,61 @@ canvas.addEventListener('touchend', e => {
   if (d.x !== -dir.x || d.y !== -dir.y) next = d;
 }, { passive: true });
 
+// save score
+document.addEventListener('keydown', e => {
+  if (e.key === "s" || e.key === "S") {
+    e.preventDefault();
+    saveScore();
+  }
+});
+
+const scoresList = document.getElementById("scores");
+
+function loadScores() {
+  scoresRef.on("value", snap => {
+    const scores = [];
+
+    snap.forEach(child => {
+      const entry = child.val();
+
+      if (entry && typeof entry.score === "number") {
+        scores.push(entry);
+      }
+  });
+
+  scores.sort((a, b) => b.score - a.score);
+  scoresList.innerHTML = "";
+
+  scores.slice(0, 10).forEach(entry => {
+
+    const li = document.createElement("li");
+    // li.textContent =
+    //   `${entry.name} ${entry.score} ${new Date(entry.date).toLocaleDateString()}`;
+    const date = new Date(entry.date).toLocaleDateString();
+
+    li.innerHTML = `
+      <span class="player">${entry.name}</span>
+      <span class="score">${entry.score}</span>
+      <span class="date">${date}</span>
+    `;
+
+    scoresList.appendChild(li);
+    });
+  });
+}
+
+function saveScore() {
+  if (running) return;
+  const name = prompt("Enter your name");
+
+  if (!name) return;
+  scoresRef.push({
+    name: name.substring(0,20),
+    score,
+    date: Date.now()
+  });
+}
+loadScores();
 init();
 </script>
 </body>
