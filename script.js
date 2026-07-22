@@ -1,7 +1,21 @@
 const targetDates = [
   new Date("August 4, 2026 14:45:00").getTime(),
-  new Date("Auguest 28, 2026 15:30:00").getTime(),
+  new Date("August 28, 2026 15:30:00").getTime(),
 ];
+
+const updateCountdownState = () => {
+   const isMobile = window.matchMedia('(max-width: 768px)').matches;
+   const countdown = document.getElementById('countdown');
+
+   if (countdown) {
+      countdown.style.transform = isMobile ? 'scale(0.6)' : 'scale(1)';
+      countdown.style.transformOrigin = 'center center';
+      countdown.style.display = 'flex';
+   }
+};
+
+updateCountdownState();
+window.addEventListener('resize', updateCountdownState);
 
 setInterval(() => {
   const now = Date.now();
@@ -76,13 +90,17 @@ if (localStorage.getItem('partyActive') === 'true') {
    startConfetti();
 }
 
+
 // Party button only exists on the main page
 const partyButton = document.getElementById('partyButton');
 if (partyButton) {
    const updatePartyButtonState = () => {
       const isActive = localStorage.getItem('partyActive') === 'true';
+      const isMobile = window.matchMedia('(max-width: 768px)').matches;
+
       partyButton.classList.toggle('is-active', isActive);
       partyButton.setAttribute('aria-pressed', String(isActive));
+      partyButton.style.display = isMobile ? 'none' : 'inline-block';
    };
 
    partyButton.addEventListener('click', () => {
@@ -100,4 +118,32 @@ if (partyButton) {
    });
 
    updatePartyButtonState();
+   window.addEventListener('resize', updatePartyButtonState);
+}
+
+
+
+
+// Disable mobile-unfriendly links on phones and small screens
+const mobileDisabledLinks = Array.from(document.querySelectorAll('a[data-mobile-disabled="true"]'));
+
+function updateMobileDisabledLinks() {
+   const isMobile = window.matchMedia('(max-width: 768px)').matches;
+
+   mobileDisabledLinks.forEach((link) => {
+      const shouldDisable = isMobile;
+      link.classList.toggle('is-disabled', shouldDisable);
+      link.setAttribute('aria-disabled', String(shouldDisable));
+
+      link.addEventListener('click', (event) => {
+         if (shouldDisable) {
+            event.preventDefault();
+         }
+      }, { once: true });
+   });
+}
+
+if (mobileDisabledLinks.length > 0) {
+   updateMobileDisabledLinks();
+   window.addEventListener('resize', updateMobileDisabledLinks);
 }

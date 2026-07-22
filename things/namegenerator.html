@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Silly Name Generator</title>
 <script src="/script.js" defer></script>
 <style>
@@ -22,7 +23,8 @@
         margin:1rem;}
     ul {margin-top:8%;}
     select {background:#16161d; color:#fff8e7; padding: 6px 10px; border-radius: 4px; margin:1rem;}
-    #output{font-size:1.25rem; margin:auto;}
+    #output{font-size:1.25rem; margin:auto; display:flex; flex-wrap:wrap; justify-content:center; gap:0.75rem 1rem; max-width:90%;}
+    #output span {display:inline-block;}
 
     .backbutton { position:absolute; top: 20px; left: 20px; padding:2px 8px; text-decoration:none; font-size:1.5rem;
         background: #16161d; color:#fff8e7; border-radius: 4px; border-color: #fff8e7; border:solid; border-width:1px; }
@@ -39,8 +41,11 @@
     }
     /* make larger on mobile */
     @media (max-width: 768px) {
-        body {margin-top: 3rem; padding: 0 1rem;}
-        .backbutton {font-size: 3rem; padding: 4px 12px;}
+        body {margin-top: 3rem; margin-left:1rem;}
+        .backbutton {font-size: 1.5rem; padding: 4px 12px;}
+        li {display: flex; justify-content: center; align-items: center;}
+        
+        #output {position:relative; left:auto; max-width:100%; margin-top:0.5rem;}
     }
 
 </style>

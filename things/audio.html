@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Audio Visualizer</title>
 <script src="/script.js" defer></script>
 <style>
@@ -12,9 +13,10 @@
 @keyframes fallConfetti { to { transform: translateY(110vh) rotate(360deg); } }
 </style>
 <style>
-   body { margin: 0; background: #16161d; user-select: none; }
+   body { margin: 0; background: #16161d; user-select: none; font-family: sans-serif; color:#fff8e7;}
    
-   canvas {background:#16161d; border: 1px solid #fff8e7; margin:12px; margin-top: 12%; }
+   p { font-size:1rem; margin-top:10%;}
+   canvas {background:#16161d; border: 1px solid #fff8e7; margin:12px; }
    button{padding: 6px 14px; background-color:#16161d; color:#fff8e7; border-radius:4px; border:2px solid #fff8e7; font-size:15px;} 
    button:hover{cursor:pointer; background-color:#fff8e7; color:#16161d; transition:0.3s}
 
@@ -44,8 +46,9 @@
       /* make larger on mobile */
    @media (max-width: 768px) {
       body {margin-top: 3rem; padding: 0 1rem;}
-      .backbutton {font-size: 3rem; padding: 4px 12px;}
-      input {width: 100%; font-size: 3rem; max-width: 100%;}
+      .backbutton {font-size: 1.5rem; padding: 4px 12px;}
+      input { font-size: 3rem;}
+      canvas {max-width:95%;}
    }
 
 </style>
@@ -67,6 +70,7 @@ for (let i = 0; i < 300; i++) {
 </script>
 
 <div class="stuff">
+   <p> Press Play to See Music Visually</p>
    <canvas id="canvas" width="800" height="300"></canvas>
 
    <div class="stuff2">

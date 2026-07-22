@@ -11,11 +11,27 @@ small {  color:#6b6a68;  margin:0;}
 a { color: #fff8E7;  text-decoration: none;  border: 2px solid #fff8E7;  padding: 10px;  
    border-radius: 4px;  margin:10px;  font-size:1rem; }
 a:hover {  background-color: #fff8E7;  color: #16161d;  transition: 0.3s;}
+a.is-disabled {
+   opacity: 0.45;
+   filter: grayscale(1);
+   cursor: not-allowed;
+   pointer-events: none;
+   border-color: #6b6a68;
+   color: #6b6a68;
+}
+a.is-disabled:hover {
+   background-color: transparent;
+   color: #6b6a68;
+}
 
 /* for mobile devices */
 @media (max-width: 768px) {
    .flex-grid {  flex-direction: column;  gap: 2rem;}
    .col {  width: 100%; }
+   #countdown {
+      transform: scale(0.5);
+      transform-origin: center center;
+   }
 }
 
 .trail {
