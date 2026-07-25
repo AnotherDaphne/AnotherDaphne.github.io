@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Sand</title>
 <style>
   body { background: #16161d; font-family: sans-serif; color: #6b6a68; user-select: none; overflow: hidden; }
@@ -22,7 +23,7 @@
   <p class="resetbutton">clear</p>
 
   <canvas id="sandCanvas"></canvas>
-  <div id="text">hold mouse to pour sand, right click to erase</div>
+  <div id="text">hold to pour sand, right click to erase</div>
 
 <script>
 const canvas = document.getElementById('sandCanvas');
@@ -61,6 +62,18 @@ canvas.addEventListener('mousemove', e => {
   mouseX = Math.floor((e.clientX - r.left) / CELL);
   mouseY = Math.floor((e.clientY - r.top) / CELL);
 });
+
+// Touch controls — mirrors mouse behaviour, no erasing on touch
+function getTouchPos(e) {
+  const r = canvas.getBoundingClientRect();
+  const touch = e.touches[0] || e.changedTouches[0];
+  mouseX = Math.floor((touch.clientX - r.left) / CELL);
+  mouseY = Math.floor((touch.clientY - r.top) / CELL);
+}
+canvas.addEventListener('touchstart',  e => { e.preventDefault(); mouseDown = true;  erasing = false; getTouchPos(e); }, { passive: false });
+canvas.addEventListener('touchmove',   e => { e.preventDefault(); getTouchPos(e); },                                    { passive: false });
+canvas.addEventListener('touchend',    e => { mouseDown = false; });
+canvas.addEventListener('touchcancel', e => { mouseDown = false; });
 
 function spawnSand() {
   for (let dy = -BRUSH; dy <= BRUSH; dy++) {
@@ -124,7 +137,7 @@ function draw() {
 }
 
 let frameCount = 0;
-const SPEED = 1.5; // higher number slower fall (skips frames)
+const SPEED = 1.25; // higher number slower fall (skips frames)
 
 function loop() {
   if (mouseDown) spawnSand();

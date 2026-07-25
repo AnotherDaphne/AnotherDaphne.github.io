@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="/script.js" defer></script>
+<title>Go Fishing</title>
+<style>
+#confetti { position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+   pointer-events: none; overflow: hidden; z-index: 999; }
+#confetti span { position: absolute; top: -10px; width: 8px; height: 8px; 
+   animation: fallConfetti linear forwards; }
+@keyframes fallConfetti { to { transform: translateY(110vh) rotate(360deg); } }
+</style>
+<style>
+/* --------------------- default */
+body { font-family: sans-serif; font-size: 1.25rem; display: flex; flex-direction: column; letter-spacing: 0.05rem;
+  align-items: center; justify-content: flex-start; min-height: 100vh; margin: 0; padding: 0;
+  background: #16161d; color: #fff8e7; user-select: none; }
+
+.backbutton { position: absolute; top: 20px; left: 20px; padding: 2px 8px; text-decoration: none;
+  font-size: 1.5rem; background: #16161d; color: #fff8e7; border-radius: 4px; border: 1px solid #fff8e7; }
+.backbutton:hover { cursor: pointer; background: #fff8e7; color: #16161d; transition: 0.3s; }
+
+#stars { position: fixed; top: 0; left: 0; width: 100%; height: 200%; z-index: -1; overflow: hidden;
+  animation: scrollStars 60s linear infinite; }
+#stars span { position: absolute; width: 2px; height: 2px; background: #fff8e7; border-radius: 50%; }
+@keyframes scrollStars { from { transform: translateY(-50%); } to { transform: translateY(0); } }
+
+#scene-img { border: 1px solid black; border-radius:8px; margin-bottom:1rem;}
+
+/* --------------------- game stuff */
+#cast { margin: 1rem; padding: 6px 12px; cursor: pointer; border-radius: 4px; border: 2px solid #fff8e7; font-size: 1rem; }
+#cast:hover { color: #fff8e7; background: #16161d; transition: 0.3s; }
+#cast:disabled { opacity: 0.4; cursor: not-allowed; }
+
+#difficulty-select { display: flex; gap: 8px; margin: 1rem; }
+.diff-btn { padding: 6px 14px; cursor: pointer; border-radius: 4px; border: 2px solid #6b6a68;
+  background: #16161d; color: #fff8e7; transition: 0.3s; }
+.diff-btn:hover { border-color: #fff8e7; }
+.diff-btn.active { background: #fff8e7; color: #16161d; border-color: #fff8e7; }
+.diff-btn[data-diff="easy"].active { background: #4caf50; border-color: #4caf50; color: #16161d; }
+.diff-btn[data-diff="medium"].active { background: #2196f3; border-color: #2196f3; color: #fff8e7; }
+.diff-btn[data-diff="hard"].active { background: #ff4d4d; border-color: #ff4d4d; color: #fff8e7; }
+.diff-btn[data-diff="extreme"].active { background: #000100; border-color: #000100; color: #fff8e7; }
+
+#reel-track { position: relative; width: 320px; height: 24px; background: #16161d;
+  border: 1px solid #6b6a68; display: none; cursor: pointer; margin-top: 8px; overflow: hidden; }
+#reel-target { position: absolute; top: 0; height: 100%; width: 60px; left: 100px;
+  background: rgba(80,200,80,0.3); border-left: 2px solid #4caf50; border-right: 2px solid #4caf50; }
+#reel-cursor { position: absolute; top: 3px; left: 0; width: 18px; height: 18px; border-radius: 50%; background: #fff8e7; }
+
+#progress { width: 320px; height: 6px; background: #16161d; border: 1px solid #6b6a68; display: none; margin: 1rem; }
+#progress-fill { height: 100%; width: 0%; background: #4caf50; }
+
+/* --------------------- caught list  */
+.fish-list { margin-top: 4px; color: #a9a8a4; font-size:0.85rem; }
+#total-counter { margin: 10px; }
+#fish-list {align-items: center; display: flex; flex-direction: row; width: 50%; }
+#per-difficulty { margin-top: 10px; }
+
+.diff-row { margin-bottom: 14px; padding: 10px 12px; border-radius: 6px; 
+  background: black; border-left: 3px solid #6b6a68; font-size:0.85rem;}
+.diff-label { margin: 6px; }
+
+.diff-row--easy { border-left-color: #4caf50; }  .diff-label--easy { color: #4caf50; }
+.diff-row--medium { border-left-color: #2196f3; }  .diff-label--medium { color: #2196f3; }
+.diff-row--hard { border-left-color: #ff4d4d; }  .diff-label--hard { color: #ff4d4d; }
+.diff-row--extreme { border-left-color: #fff8e7; }  .diff-label--extreme { color: #fff8e7; }
+.diff-count { font-size: 0.85rem; color: #a9a8a4; }
+
+</style>
+</head>
+<body>
+<a class="backbutton" href="/index.html">&lt;</a>
+<div id="stars"></div>
+<p style="color:#6b6a68; font-size:1rem;">*graphics are not finalized</p>
+
+<div id="img-div"><img id="scene-img" src="/assets/idle.png" alt="scene of person fishing" width="800" height="500"></div>
+
+<div id="message">press cast to start</div>
+<button id="cast">cast</button>
+
+<div id="reel-track">
+  <div id="reel-target"></div>
+  <div id="reel-cursor"></div>
+</div>
+
+<div id="progress"><div id="progress-fill"></div></div>
+
+<div id="difficulty-select">
+  <button class="diff-btn" data-diff="easy">easy</button>
+  <button class="diff-btn active" data-diff="medium">medium</button>
+  <button class="diff-btn" data-diff="hard">hard</button>
+  <button class="diff-btn" data-diff="extreme">extreme</button>
+</div>
+
+<div id="fish-list">
+  <div id="total-counter"></div> 
+  <div id="per-difficulty"></div>
+</div>
+
+<script>
+// --------------------- stars 
+const starsEl = document.getElementById('stars');
+for (let i = 0; i < 300; i++) {
+  const s = document.createElement('span');
+  s.style.left = Math.random() * 100 + '%';
+  s.style.top = Math.random() * 100 + '%';
+  starsEl.appendChild(s);
+}
+
+// --------------------- config 
+const DIFFICULTIES = {
+  easy: {
+    fish: ["bass","trout","minnow","tetra","betta","catfish","herring","shrimp","clams","mussels","scallops","oysters","prawns","clownfish"],
+    waitMin: 1200, waitMax: 2800, cursorStep: 2, targetWidth: 90, progressPerHit: 28, progressLostPerMiss: 8
+  },
+  medium: {
+    fish: ["mahimahi","salmon","puffer fish","angelfish","wrasse","giant gourami","swordfish","mackerel","yellowtail","mola mola","mudskipper","lobster","crawfish","marlin"],
+    waitMin: 2000, waitMax: 5000, cursorStep: 3, targetWidth: 60, progressPerHit: 20, progressLostPerMiss: 15
+  },
+  hard: {
+    fish: ["angler fish","jellyfish","barracuda","piranha","texas blue crab","alaskan king crab","mako shark","thresher shark","tiger shark",
+    "nurse shark","basking shark","sperm whale","blue whale","killer whale","greenland shark","2na","hammerhead shark","wright whale"],
+    waitMin: 2500, waitMax: 6000, cursorStep: 5, targetWidth: 34, progressPerHit: 15, progressLostPerMiss: 22
+  },
+  extreme: {
+    fish: ["Bruce","3na","4na","5na","6na","fimsh","fih","7na","alpha fish","omega fish","betafish","yangtze river dolphin","whale shark",
+    "Nemo","Dory","moby dick","jaws"],
+    waitMin: 2500, waitMax: 6000, cursorStep: 8, targetWidth: 25, progressPerHit: 10, progressLostPerMiss: 30
+  }
+};
+
+const TRACK_WIDTH = 320, CURSOR_SIZE = 18, CURSOR_MAX = TRACK_WIDTH - CURSOR_SIZE, TICK_TIME = 20;
+const SPEED_GAIN_PER_HIT = 0.5, SPEED_LOSS_PER_MISS = 0.35, SPEED_MIN_MULT = 0.6, SPEED_MAX_MULT = 2.5;
+
+// ---------- images per state ----------
+const STATE_IMAGES = {
+  idle: "/assets/idle.png",
+  waiting: "/assets/waiting.png",
+  reeling: "/assets/reeling.png",
+  caught: "/assets/caught.png"
+};
+
+// --------------------- elements
+const messageEl = document.getElementById("message");
+const btn = document.getElementById("cast");
+const difficultyButtons = document.querySelectorAll(".diff-btn");
+const reelCursor = document.getElementById("reel-cursor");
+const reelTarget = document.getElementById("reel-target");
+const progressFill = document.getElementById("progress-fill");
+const reelTrackEl = document.getElementById("reel-track");
+const progressEl = document.getElementById("progress");
+const sceneImg = document.getElementById("scene-img");
+
+// --------------------- state
+let state = "idle"; // idle | waiting | reeling
+let currentDifficulty = "medium";
+let caughtFish = { easy: [], medium: [], hard: [], extreme: [] };
+
+let cursorX = 0, cursorDirection = 1, currentCursorStep = 3, moveTimer = null;
+let targetX = 100, progress = 0;
+
+// --------------------- difficulty selection
+difficultyButtons.forEach(b => b.addEventListener("click", () => {
+  if (state !== "idle") return;
+  currentDifficulty = b.dataset.diff;
+  difficultyButtons.forEach(other => other.classList.remove("active"));
+  b.classList.add("active");
+}));
+
+// --------------------- casting
+btn.addEventListener("click", () => { if (state === "idle") cast(); });
+
+function cast() {
+  state = "waiting";
+  btn.disabled = true;
+  difficultyButtons.forEach(b => b.disabled = true);
+  messageEl.textContent = "waiting for a bite...";
+  sceneImg.src = STATE_IMAGES.waiting;
+
+  const diff = DIFFICULTIES[currentDifficulty];
+  const waitTime = diff.waitMin + Math.random() * (diff.waitMax - diff.waitMin);
+  setTimeout(bite, waitTime);
+}
+
+function bite() {
+  if (state !== "waiting") return;
+  state = "reeling";
+  messageEl.textContent = "fish found! press space or tap to reel in";
+  sceneImg.src = STATE_IMAGES.reeling;
+
+  cursorX = 0;
+  cursorDirection = 1;
+  currentCursorStep = DIFFICULTIES[currentDifficulty].cursorStep;
+  progress = 0;
+  progressFill.style.width = "0%";
+  progressFill.style.background = "#4c4";
+  reelTrackEl.style.display = "block";
+  progressEl.style.display = "block";
+
+  moveTarget();
+  moveTimer = setInterval(moveCursor, TICK_TIME);
+}
+
+// --------------------- reel part
+function moveCursor() {
+  cursorX += currentCursorStep * cursorDirection;
+  if (cursorX >= CURSOR_MAX) { cursorX = CURSOR_MAX; cursorDirection = -1; }
+  if (cursorX <= 0) { cursorX = 0; cursorDirection = 1; }
+  reelCursor.style.left = cursorX + "px";
+}
+
+function moveTarget() {
+  const diff = DIFFICULTIES[currentDifficulty];
+  const maxX = TRACK_WIDTH - diff.targetWidth;
+  targetX = Math.random() * maxX;
+  reelTarget.style.left = targetX + "px";
+  reelTarget.style.width = diff.targetWidth + "px";
+}
+
+function pressReel() {
+  if (state !== "reeling") return;
+  const diff = DIFFICULTIES[currentDifficulty];
+
+  const cursorCenter = cursorX + CURSOR_SIZE / 2;
+  const inZone = cursorCenter >= targetX && cursorCenter <= targetX + diff.targetWidth;
+
+  const minStep = diff.cursorStep * SPEED_MIN_MULT;
+  const maxStep = diff.cursorStep * SPEED_MAX_MULT;
+
+  if (inZone) {
+    progress = Math.min(100, progress + diff.progressPerHit);
+    currentCursorStep = Math.min(maxStep, currentCursorStep + SPEED_GAIN_PER_HIT);
+    moveTarget();
+  } else {
+    progress = Math.max(0, progress - diff.progressLostPerMiss);
+    currentCursorStep = Math.max(minStep, currentCursorStep - SPEED_LOSS_PER_MISS);
+  }
+
+  progressFill.style.width = progress + "%";
+
+  if (progress >= 100) {
+    clearInterval(moveTimer);
+    fishCaught();
+  }
+}
+
+document.addEventListener("keydown", e => {
+  if (e.code === "Space") { e.preventDefault(); pressReel(); }
+});
+document.addEventListener("touchstart", e => {
+  if (state !== "reeling") return;
+  e.preventDefault();
+  pressReel();
+}, { passive: false });
+
+// --------------------- catch
+function fishCaught() {
+  state = "idle";
+  reelTrackEl.style.display = "none";
+  progressEl.style.display = "none";
+
+  const diff = DIFFICULTIES[currentDifficulty];
+  const remaining = diff.fish.filter(f => !caughtFish[currentDifficulty].includes(f));
+
+  if (remaining.length === 0) {
+    messageEl.textContent = "you've caught every " + currentDifficulty + " fish!";
+  } else {
+    const name = remaining[Math.floor(Math.random() * remaining.length)];
+    caughtFish[currentDifficulty].push(name);
+    messageEl.textContent = "you caught a " + name + "!";
+  }
+
+  sceneImg.src = STATE_IMAGES.caught;
+  setTimeout(() => { sceneImg.src = STATE_IMAGES.idle; }, 1500);
+
+  updateCaughtList();
+  btn.disabled = false;
+  btn.textContent = "cast";
+  difficultyButtons.forEach(b => b.disabled = false);
+}
+
+function updateCaughtList() {
+  let total = 0, totalPossible = 0, diffHTML = "";
+
+  Object.keys(DIFFICULTIES).forEach(diff => {
+    const caught = caughtFish[diff].length;
+    const possible = DIFFICULTIES[diff].fish.length;
+    total += caught;
+    totalPossible += possible;
+
+    if (caught > 0) {
+      const fishTags = caughtFish[diff]
+        .map(f => `<span class="fish-tag fish-tag--${diff}">${f}</span>`)
+        .join(', ');
+
+      diffHTML += `
+        <div class="diff-row diff-row--${diff}">
+          <span class="diff-label">${diff}</span>
+          <span class="diff-count">${caught}/${possible}</span>
+          <div class="fish-list">${fishTags}</div>
+        </div>`;
+    }
+  });
+
+  document.getElementById('total-counter').innerHTML =
+    `<span class="total-label"></span><span class="total-count">${total}/${totalPossible}</span>`;
+  document.getElementById('per-difficulty').innerHTML = diffHTML;
+}
+</script>
+</body>
+</html>

@@ -18,7 +18,7 @@
   .everything { margin-top: 5%; display: flex; flex-direction: column; align-items: center; justify-content: center; }
 
   #score, #text { font-size: 1rem; letter-spacing: 0.05rem; color: #fff8e7; margin: 5px; }
-  #scoreboard {position:absolute; top: 150px; right: 400px; border:solid 2px #fff8e7; border-radius:4px; 
+  #scoreboard {position:absolute; top: 150px; right: 12rem; border:solid 2px #fff8e7; border-radius:4px; 
     display: flex; flex-direction: column; align-items: center; justify-content: center;}
   #scoreboard p {font-size:1.25rem;}
 
@@ -95,7 +95,6 @@ const CELL = Math.floor(Math.min(window.innerWidth * 0.9, 500) / COLS);
 canvas.width = COLS * CELL;
 canvas.height = ROWS * CELL;
 
-const isTouch = 'ontouchstart' in window;
 let snake, dir, next, food, score, running, interval;
 
 function init() {
@@ -106,7 +105,7 @@ function init() {
   running = true;
 
   scoreEl.textContent = 0;
-  textEl.textContent = isTouch ? 'swipe to move' : 'arrow keys to move';
+  textEl.textContent = 'arrow keys to move';
 
   placeFood();
   clearInterval(interval);
@@ -117,7 +116,7 @@ function init() {
 function gameOver() {
   running = false;
   clearInterval(interval);
-  textEl.textContent = isTouch ? 'game over - tap to play again' : 'game over - press space to play again - press s to save score';
+  textEl.textContent = 'game over - press space to play again - press s to save score';
 }
 
 function placeFood() {
@@ -171,28 +170,6 @@ document.addEventListener('keydown', e => {
   e.preventDefault();
   if (d.x !== -dir.x || d.y !== -dir.y) next = d;
 });
-
-// Touch controls
-let touchStartX = 0, touchStartY = 0;
-
-canvas.addEventListener('touchstart', e => {
-  if (!running) { init(); return; }
-  touchStartX = e.touches[0].clientX;
-  touchStartY = e.touches[0].clientY;
-}, { passive: true });
-
-canvas.addEventListener('touchend', e => {
-  if (!running) return;
-  const dx = e.changedTouches[0].clientX - touchStartX;
-  const dy = e.changedTouches[0].clientY - touchStartY;
-  if (Math.abs(dx) < 25 && Math.abs(dy) < 25) return;
-
-  const d = Math.abs(dx) > Math.abs(dy)
-    ? { x: dx > 0 ? 1 : -1, y: 0 }
-    : { x: 0, y: dy > 0 ? 1 : -1 };
-
-  if (d.x !== -dir.x || d.y !== -dir.y) next = d;
-}, { passive: true });
 
 // save score
 document.addEventListener('keydown', e => {

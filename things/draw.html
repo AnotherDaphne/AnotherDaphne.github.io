@@ -4,278 +4,281 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Draw</title>
+
 <style>
-   body{background:#16161d; height: 100%; overflow: hidden; color:#fff8e7; user-select: none;}
-   canvas { background: #16161d; cursor: crosshair; }
+body{background:#16161d; height:100%; overflow:hidden; color:#fff8e7; user-select:none; touch-action:none; font-family: sans-serif;}
+canvas{background:#16161d;cursor:crosshair;touch-action:none;}
+ul{list-style:none;}
 
-   ul {list-style:none;}
-   .top-buttons {display: flex; gap: 10px; list-style: none; align-items: center; position:fixed; left:-20px; top: 0px;}
+.top-buttons{display:flex;gap:10px;list-style:none;align-items:center;position:fixed;left:-20px;top:0;}
+.red,.orange,.yellow,.green,.blue,.purple,.white,.black,.brown{width:8px;height:4px;border:2px solid #fff8e7;display:inline;border-radius:4px;padding:4px 12px;}
 
-   .red, .orange, .yellow, .green, .blue, .purple, .white, .black, .brown { width: 8px; height: 4px; border: 2px solid #fff8e7;
-   display: inline; border-radius: 4px; padding:4px 12px;}
+.resetbutton{background:#16161d;color:#fff8e7;border:1px solid #fff8e7;border-radius:4px;padding:4px 12px;}
+.resetbutton:hover{cursor:pointer;background:#fff8e7;color:#16161d;transition:.3s;}
 
-   .resetbutton {/*position:fixed; top:15px; left:60px; */background: #16161d; color:#fff8e7; 
-         border:solid; border-width:1px; border-radius: 4px; border-color: #fff8e7; padding:4px 12px}
-   .resetbutton:hover {cursor:pointer; background: #fff8e7; color:#16161d; transition:0.3s}
+.backbutton{padding:2px 8px;text-decoration:none;font-size:1.5rem;background:#16161d;color:#fff8e7;border:1px solid #fff8e7;border-radius:4px;}
+.backbutton:hover{cursor:pointer;background:#fff8e7;color:#16161d;transition:.3s;}
 
-   .backbutton { /*position:absolute; top: 20px; left: 20px; */ padding:2px 8px; text-decoration:none; font-size:1.5rem;
-         background: #16161d; color:#fff8e7; border-radius: 4px; border-color: #fff8e7; border:solid; border-width:1px; }
-   .backbutton:hover {cursor:pointer; background: #fff8e7; color:#16161d; transition:0.3s} 
+@media (max-width: 768px) {
+   body {margin-top: 2rem; padding: 0 1rem;}
+   .backbutton {font-size: 1.5rem; padding: 4px 12px;}
+   .top-buttons{max-width:90%; flex-wrap: wrap;}
+   .fillbutton{visibility:hidden}
+}
 </style>
 </head>
+
 <body>
 
 <canvas id="canvas"></canvas>
 
 <ul class="top-buttons">
-   <li><a class="backbutton" href="/index.html">&lt;</a></li>
-   <li><a class="resetbutton">clear</a></li>
-   <li><a class="resetbutton undobutton">undo</a></li>
-   <li><a class="resetbutton savebutton">save</a></li>
-   <li><a class="resetbutton fillbutton">fill</a></li>
+    <li><a class="backbutton" href="/index.html">&lt;</a></li>
 
-   <li class="white"></li>
-   <li class="red"></li>
-   <li class="orange"></li>
-   <li class="yellow"></li>
-   <li class="green"></li>
-   <li class="blue"></li>
-   <li class="purple"></li>
-   <li class="brown"></li>
-   <li class="black"></li>
+    <li><a class="resetbutton">clear</a></li>
+    <li><a class="resetbutton undobutton">undo</a></li>
+    <li><a class="resetbutton savebutton">save</a></li>
+    <li><a class="resetbutton fillbutton">fill</a></li>
 
-   <li><input type="range" id="brushSize" min="1" max="20" value="2"></li>
+    <li class="white"></li>
+    <li class="red"></li>
+    <li class="orange"></li>
+    <li class="yellow"></li>
+    <li class="green"></li>
+    <li class="blue"></li>
+    <li class="purple"></li>
+    <li class="brown"></li>
+    <li class="black"></li>
+
+    <li>
+        <input type="range" id="brushSize" min="1" max="20" value="2">
+    </li>
 </ul>
-
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 
 <script>
 const firebaseConfig = {
-apiKey: "AIzaSyBkUk3ZewNRWdvEtA0dDz6Np_DAio17m4g",
-authDomain: "website-4a137.firebaseapp.com",
-projectId: "website-4a137",
-storageBucket: "website-4a137.firebasestorage.app",
-messagingSenderId: "67261630579",
-appId: "1:67261630579:web:b4d051795cfc43f1544206"
+    apiKey: "AIzaSyBkUk3ZewNRWdvEtA0dDz6Np_DAio17m4g",
+    authDomain: "website-4a137.firebaseapp.com",
+    projectId: "website-4a137",
+    storageBucket: "website-4a137.firebasestorage.app",
+    messagingSenderId: "67261630579",
+    appId: "1:67261630579:web:b4d051795cfc43f1544206"
 };
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
-const drawingsRef = db.ref('drawings');
+const drawingsRef = db.ref("drawings");
 
 // Save Button
 const saveButton = document.querySelector(".savebutton");
-
-saveButton.addEventListener("click", (e) => {
-e.stopPropagation();
-saveButton.textContent = "saving...";
-
-const dataURL = canvas.toDataURL("image/png");
-
-drawingsRef.push({ image: dataURL, timestamp: Date.now() })
-   .then(() => { saveButton.textContent = "saved!"; })
-   .catch(err => {
-      console.error("Save failed", err);
-      saveButton.textContent = "error";
-      alert(err.message);
-   })
-   .finally(() => {
-      setTimeout(() => { saveButton.textContent = "save"; }, 1500);
-   });
+saveButton.addEventListener("click", e=>{
+    e.stopPropagation();
+    saveButton.textContent="saving...";
+    const dataURL = canvas.toDataURL("image/png");
+    drawingsRef.push({image:dataURL,timestamp:Date.now()})
+    .then(()=>{
+        saveButton.textContent="saved!";
+    })
+    .catch(err=>{
+        console.error(err);
+        saveButton.textContent="error";
+        alert(err.message);
+    })
+    .finally(()=>{
+        setTimeout(()=>{saveButton.textContent="save";},1500);
+    });
 });
 </script>
 
 <script>
-const canvas = document.getElementById("canvas");
-const ctx = canvas.getContext("2d");
+const canvas=document.getElementById("canvas");
+const ctx=canvas.getContext("2d");
+canvas.width=window.innerWidth;
+canvas.height=window.innerHeight;
 
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
+let drawing=false;
+let erasing=false;
+let currentColor="#fff8e7";
 
-let drawing = false;
-let erasing = false;
+ctx.lineCap="round";
+ctx.lineJoin="round";
+ctx.lineWidth=2;
+ctx.strokeStyle=currentColor;
 
-let currentColor = "#fff8e7";
+const brushSize=document.getElementById("brushSize");
+let brushWidth=2;
+const eraserWidth=40;
 
-ctx.lineWidth = 2;
-ctx.lineCap = "round";
-ctx.strokeStyle = currentColor;
+// Used for smooth tablet strokes
+let lastX=0;
+let lastY=0;
 
-// Prevent right-click menu
-canvas.addEventListener("contextmenu", e => e.preventDefault());
-
-const brushSize = document.getElementById("brushSize");
-let brushWidth = 2;
-const eraserWidth = 40;
-
-brushSize.addEventListener("input", () => {
-   brushWidth = Number(brushSize.value);
+brushSize.addEventListener("input",()=>{
+    brushWidth=Number(brushSize.value);
 });
 
+// Prevent right click menu
+canvas.addEventListener("contextmenu",e=>e.preventDefault());
 
 // Undo History
-const history = [];
-const MAX_HISTORY = 20;
-
-function saveState() {
-   if (history.length >= MAX_HISTORY) {
-      history.shift();
-   }
-
-   history.push(
-      ctx.getImageData(0, 0, canvas.width, canvas.height)
-   );
+const history=[];
+const MAX_HISTORY=20;
+function saveState(){
+    if(history.length>=MAX_HISTORY) history.shift();
+    history.push(ctx.getImageData(0,0,canvas.width,canvas.height));
 }
+
 // Undo Button
 const undoButton = document.querySelector(".undobutton");
-
-undoButton.addEventListener("click", (e) => {
-   e.stopPropagation();
-   if (history.length === 0) return;
-
-   const previous = history.pop();
-   ctx.putImageData(previous, 0, 0);
+undoButton.addEventListener("click", e=>{
+    e.stopPropagation();
+    if(history.length===0) return;
+    ctx.putImageData(history.pop(),0,0);
 });
 
 // Clear Button
-const resetButton = document.querySelector(".resetbutton");
-
-resetButton.addEventListener("click", (e) => {
-   e.stopPropagation();
-   saveState(); // Save before clearing
-   ctx.clearRect(0, 0, canvas.width, canvas.height);
+const resetButton=document.querySelector(".resetbutton");
+resetButton.addEventListener("click",e=>{
+    e.stopPropagation();
+    saveState();
+    ctx.clearRect(0,0,canvas.width,canvas.height);
 });
 
 // Fill Bucket
-const fillButton = document.querySelector(".fillbutton");
-let filling = false;
-
-fillButton.addEventListener("click", (e) => {
-   e.stopPropagation();
-   filling = !filling;
-   fillButton.style.opacity = filling ? "0.5" : "1";
+const fillButton=document.querySelector(".fillbutton");
+let filling=false;
+fillButton.addEventListener("click",e=>{
+    e.stopPropagation();
+    filling=!filling;
+    fillButton.style.opacity=filling ? "0.5":"1";
 });
 
-function hexToRGBA(hex) {
-   const r = parseInt(hex.slice(1, 3), 16);
-   const g = parseInt(hex.slice(3, 5), 16);
-   const b = parseInt(hex.slice(5, 7), 16);
-   return [r, g, b, 255];
+function hexToRGBA(hex){
+    return[parseInt(hex.slice(1,3),16),parseInt(hex.slice(3,5),16),parseInt(hex.slice(5,7),16),255];
 }
 
-function floodFill(startX, startY, fillColor) {
-   const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-   const data = imgData.data;
-   const w = canvas.width, h = canvas.height;
-
-   const startPos = (startY * w + startX) * 4;
-   const startColor = [data[startPos], data[startPos+1], data[startPos+2], data[startPos+3]];
-
-   if (startColor[0] === fillColor[0] && startColor[1] === fillColor[1] &&
-       startColor[2] === fillColor[2] && startColor[3] === fillColor[3]) return;
-
-   const matches = (pos) => {
-      return data[pos] === startColor[0] && data[pos+1] === startColor[1] &&
-             data[pos+2] === startColor[2] && data[pos+3] === startColor[3];
-   };
-
-   const stack = [[startX, startY]];
-   while (stack.length) {
-      const [x, y] = stack.pop();
-      if (x < 0 || x >= w || y < 0 || y >= h) continue;
-
-      const pos = (y * w + x) * 4;
-      if (!matches(pos)) continue;
-
-      data[pos] = fillColor[0];
-      data[pos+1] = fillColor[1];
-      data[pos+2] = fillColor[2];
-      data[pos+3] = fillColor[3];
-
-      stack.push([x+1, y], [x-1, y], [x, y+1], [x, y-1]);
-   }
-
-   ctx.putImageData(imgData, 0, 0);
+function floodFill(startX,startY,fillColor){
+    const imgData=ctx.getImageData(0,0,canvas.width,canvas.height);
+    const data=imgData.data;
+    const w=canvas.width;
+    const h=canvas.height;
+    const start=(startY*w+startX)*4;
+    const startColor=[data[start],data[start+1],data[start+2],data[start+3]];
+    if(startColor[0]===fillColor[0] && startColor[1]===fillColor[1] && startColor[2]===fillColor[2] && startColor[3]===fillColor[3]) return;
+    const matches=pos=> data[pos]===startColor[0] && data[pos+1]===startColor[1] && data[pos+2]===startColor[2] && data[pos+3]===startColor[3];
+    const stack=[[startX,startY]];
+    while(stack.length){
+        const [x,y]=stack.pop();
+        if(x<0||x>=w||y<0||y>=h) continue;
+        const pos=(y*w+x)*4;
+        if(!matches(pos)) continue;
+        data[pos]=fillColor[0];
+        data[pos+1]=fillColor[1];
+        data[pos+2]=fillColor[2];
+        data[pos+3]=fillColor[3];
+        stack.push([x+1,y],[x-1,y],[x,y+1],[x,y-1]);
+    }
+    ctx.putImageData(imgData,0,0);
 }
 
 // Color Picker
-const colors = {
-   white: "#fff8e7",
-   red: "#ff4d4d",
-   orange: "#ff9900",
-   yellow: "#ffd700",
-   green: "#4caf50",
-   blue: "#2196f3",
-   purple: "#9c27b0",
-   black: "#16161d",
-   brown: "#583101"
+const colors={
+    white:"#fff8e7",
+    red:"#ff4d4d",
+    orange:"#ff9900",
+    yellow:"#ffd700",
+    green:"#4caf50",
+    blue:"#2196f3",
+    purple:"#9c27b0",
+    black:"#16161d",
+    brown:"#583101"
 };
 
-for (const [className, color] of Object.entries(colors)) {
-   const button = document.querySelector("." + className);
-   button.style.backgroundColor = color;
-
-   button.addEventListener("click", (e) => {
-      e.stopPropagation();
-      currentColor = color;
-   });
+for(const [className,color] of Object.entries(colors)){
+    const button=document.querySelector("." + className);
+    button.style.backgroundColor=color;
+    button.addEventListener("click",e=>{
+        e.stopPropagation();
+        currentColor=color;
+    });
 }
 
-// Drawing
-canvas.addEventListener("mousedown", (e) => {
-   if (filling) {
-      saveState();
-      floodFill(e.offsetX, e.offsetY, hexToRGBA(currentColor));
-      return;
-   }
-
-   // Save the canvas before beginning a new stroke
-   saveState();
-
-   drawing = true;
-   erasing = (e.button === 2);
-
-   ctx.beginPath();
-   ctx.moveTo(e.offsetX, e.offsetY);
-
-   if (erasing) {
-      ctx.globalCompositeOperation = "destination-out";
-      ctx.lineWidth = eraserWidth;
-   } else {
-      ctx.globalCompositeOperation = "source-over";
-      ctx.lineWidth = brushWidth;
-      ctx.strokeStyle = currentColor;
-   }
+// ---------- Tablet-compatible drawing ----------
+canvas.addEventListener("pointerdown",e=>{
+    if(!e.isPrimary) return;
+    e.preventDefault();
+    canvas.setPointerCapture(e.pointerId);
+    if(filling){
+        saveState();
+        floodFill(e.offsetX,e.offsetY,hexToRGBA(currentColor));
+        return;
+    }
+    saveState();
+    drawing=true;
+    erasing=(e.button===2);
+    lastX=e.offsetX;
+    lastY=e.offsetY;
+    ctx.beginPath();
+    ctx.moveTo(lastX,lastY);
+    if(erasing){
+        ctx.globalCompositeOperation="destination-out";
+        ctx.lineWidth=eraserWidth;
+    }else{
+        ctx.globalCompositeOperation="source-over";
+        ctx.strokeStyle=currentColor;
+        const pressure = e.pointerType==="pen" ? Math.max(e.pressure,0.05) : 1;
+        ctx.lineWidth=brushWidth*pressure;
+    }
 });
 
-canvas.addEventListener("mousemove", (e) => {
-   if (!drawing) return;
-
-   ctx.lineTo(e.offsetX, e.offsetY);
-   ctx.stroke();
+canvas.addEventListener("pointermove",e=>{
+    if(!drawing) return;
+    e.preventDefault();
+    const events = e.getCoalescedEvents ? e.getCoalescedEvents() : [e];
+    for(const event of events){
+        if(!erasing){
+            const pressure = event.pointerType==="pen" ? Math.max(event.pressure,0.05) : 1;
+            ctx.lineWidth=brushWidth*pressure;
+        }
+        const midX=(lastX+event.offsetX)/2;
+        const midY=(lastY+event.offsetY)/2;
+        ctx.quadraticCurveTo(lastX,lastY,midX,midY);
+        ctx.stroke();
+        lastX=event.offsetX;
+        lastY=event.offsetY;
+    }
 });
 
-function stopDrawing() {
-   drawing = false;
-   erasing = false;
-   ctx.globalCompositeOperation = "source-over";
+function stopDrawing(e){
+    if(!drawing) return;
+    drawing=false;
+    erasing=false;
+    ctx.globalCompositeOperation="source-over";
+    ctx.closePath(); // Finish the current path cleanly
+    if(e && canvas.hasPointerCapture(e.pointerId)){
+        canvas.releasePointerCapture(e.pointerId); // Release the captured pointer
+    }
 }
 
-canvas.addEventListener("mouseup", stopDrawing);
-canvas.addEventListener("mouseleave", stopDrawing);
+canvas.addEventListener("pointerup", stopDrawing); // Finish drawing
+canvas.addEventListener("pointercancel", stopDrawing); // Pen was interrupted (common on tablets)
+canvas.addEventListener("pointerleave", stopDrawing); // Stop if the pointer leaves the canvas
 
-// Keep canvas fullscreen
-window.addEventListener("resize", () => {
-   // Preserve current drawing during resize
-   const image = ctx.getImageData(0, 0, canvas.width, canvas.height);
-
-   canvas.width = window.innerWidth;
-   canvas.height = window.innerHeight;
-
-   ctx.lineCap = "round";
-   ctx.strokeStyle = currentColor;
-   ctx.putImageData(image, 0, 0);
+// Preserve drawing when resizing the window
+window.addEventListener("resize",()=>{
+    const temp=document.createElement("canvas");
+    temp.width=canvas.width;
+    temp.height=canvas.height;
+    temp.getContext("2d").drawImage(canvas,0,0);
+    canvas.width=window.innerWidth;
+    canvas.height=window.innerHeight;
+    ctx.lineCap="round";
+    ctx.lineJoin="round";
+    ctx.strokeStyle=currentColor;
+    ctx.lineWidth=brushWidth;
+    ctx.drawImage(temp,0,0);
 });
 </script>
 
