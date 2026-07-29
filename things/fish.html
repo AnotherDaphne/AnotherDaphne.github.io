@@ -53,6 +53,12 @@ body { font-family: sans-serif; font-size: 1.25rem; display: flex; flex-directio
 #progress { width: 320px; height: 6px; background: #16161d; border: 1px solid #6b6a68; display: none; margin: 1rem; }
 #progress-fill { height: 100%; width: 0%; background: #4caf50; }
 
+#quit-reel { margin: 1rem; padding: 6px 8px; cursor: pointer; border-radius: 4px;
+  border: 1px solid #ff4d4d; color: #ff4d4d; background: #16161d; font-size: 1rem; display: none; }
+#quit-reel:hover { background: #ff4d4d; color: #16161d; transition: 0.3s; }
+
+#mid-stuff { display:flex; flex-direction: row;}
+
 /* --------------------- caught list  */
 .fish-list { margin-top: 4px; color: #a9a8a4; font-size:0.85rem; }
 #total-counter { margin: 10px; }
@@ -79,7 +85,11 @@ body { font-family: sans-serif; font-size: 1.25rem; display: flex; flex-directio
 <div id="img-div"><img id="scene-img" src="/assets/idle.png" alt="scene of person fishing" width="800" height="500"></div>
 
 <div id="message">press cast to start</div>
+
+<div id="mid-stuff">
 <button id="cast">cast</button>
+<button id="quit-reel">give up</button>
+</div>
 
 <div id="reel-track">
   <div id="reel-target"></div>
@@ -113,7 +123,7 @@ for (let i = 0; i < 300; i++) {
 // --------------------- config 
 const DIFFICULTIES = {
   easy: {
-    fish: ["bass","trout","minnow","tetra","betta","catfish","herring","shrimp","clams","mussels","scallops","oysters","prawns","clownfish"],
+    fish: ["cod","bass","trout","minnow","tetra","betta","catfish","herring","shrimp","clams","mussels","scallops","oysters","prawns","clownfish"],
     waitMin: 1200, waitMax: 2800, cursorStep: 2, targetWidth: 90, progressPerHit: 28, progressLostPerMiss: 8
   },
   medium: {
@@ -153,6 +163,7 @@ const progressFill = document.getElementById("progress-fill");
 const reelTrackEl = document.getElementById("reel-track");
 const progressEl = document.getElementById("progress");
 const sceneImg = document.getElementById("scene-img");
+const quitBtn = document.getElementById("quit-reel");
 
 // --------------------- state
 let state = "idle"; // idle | waiting | reeling
@@ -199,6 +210,7 @@ function bite() {
   progressFill.style.background = "#4c4";
   reelTrackEl.style.display = "block";
   progressEl.style.display = "block";
+  quitBtn.style.display = "inline-block";
 
   moveTarget();
   moveTimer = setInterval(moveCursor, TICK_TIME);
@@ -274,13 +286,36 @@ function fishCaught() {
   }
 
   sceneImg.src = STATE_IMAGES.caught;
-  setTimeout(() => { sceneImg.src = STATE_IMAGES.idle; }, 1500);
+  setTimeout(() => { sceneImg.src = STATE_IMAGES.idle; },2500);
 
   updateCaughtList();
   btn.disabled = false;
   btn.textContent = "cast";
   difficultyButtons.forEach(b => b.disabled = false);
+  quitBtn.style.display = "none";
 }
+
+// --------------------- quit reeling
+function quitReel() {
+  if (state !== "reeling") return;
+  clearInterval(moveTimer);
+  state = "idle";
+  reelTrackEl.style.display = "none";
+  progressEl.style.display = "none";
+  quitBtn.style.display = "none";
+  progress = 0;
+  progressFill.style.width = "0%";
+  messageEl.textContent = "the fish got away...";
+  sceneImg.src = STATE_IMAGES.idle;
+  btn.disabled = false;
+  btn.textContent = "cast";
+  difficultyButtons.forEach(b => b.disabled = false);
+}
+quitBtn.addEventListener("click", quitReel);
+document.addEventListener("keydown", e => {
+  if (e.code === "Escape") quitReel();
+});
+
 
 function updateCaughtList() {
   let total = 0, totalPossible = 0, diffHTML = "";
