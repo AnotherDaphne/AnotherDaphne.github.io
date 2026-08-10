@@ -3,104 +3,234 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
 <title>Piano</title>
+<style>
+#confetti { position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+   pointer-events: none; overflow: hidden; z-index: 999; }
+#confetti span { position: absolute; top: -10px; width: 8px; height: 8px; 
+   animation: fallConfetti linear forwards; }
+@keyframes fallConfetti { to { transform: translateY(110vh) rotate(360deg); } }
+</style>
 <style>
 body { margin: 0; height: 100vh; display: flex; justify-content: center; align-items: center; flex-direction:column;
     background: #16161d; font-family: sans-serif; color:#fff8e7;}
-#piano { display: flex; gap: 2px; color:#16161d; }
-.key { width: 60px; height: 220px; background: white; border: 1px solid black;
-    display: flex; align-items: flex-end; justify-content: center; padding-bottom: 10px; box-sizing: border-box; user-select: none; }
-.key.active { background: #87cefa; }
 
+#piano { position: relative; display: flex; gap: 2px; color: #16161d; }
+ 
+.key { width: 60px; height: 220px; background: white; border: 1px solid black; 
+    display: flex; align-items: flex-end; justify-content: center; 
+    padding-bottom: 10px; box-sizing: border-box; user-select: none; touch-action: none; cursor:pointer;}
+ 
+.key.active { background: #87cefa; }
+ 
+.key.black { position: absolute; top: 0; width: 36px; height: 130px; background: #16161d; color: white;
+    border: 1px solid black; border-top: none; z-index: 2; border-radius: 0 0 4px 4px; }
+ 
+.key.black.active { background: #3b82f6; }
 #notes {padding:4px; }
+
+.backbutton { position:absolute; top: 20px; left: 20px; padding:2px 8px; text-decoration:none; font-size:1.5rem;
+      background: #16161d; color:#fff8e7; border-radius: 4px; border-color: #fff8e7; border:solid; border-width:1px; }
+   .backbutton:hover {cursor:pointer; background: #fff8e7; color:#16161d; transition:0.3s} 
 </style>
+
+
 </head>
 <body>
+<a class="backbutton" href="/index.html">&lt;</a>
+<script>
+const starsEl = document.getElementById('stars');
+for (let i = 0; i < 300; i++) {
+  const s = document.createElement('span');
+  s.style.left = Math.random() * 100 + '%';
+  s.style.top = Math.random() * 100 + '%'; // spread across the doubled height
+  starsEl.appendChild(s);
+}
+</script>
 
 <div id="piano"></div>
-<div id="notes">blah blah blah</div>
+<div id="notes">Play with your keyboard, or click/tap the keys</div>
 
 <script>
 const AudioContext = window.AudioContext || window.webkitAudioContext;
 const audio = new AudioContext();
-
+ 
+// Each note: [key, frequency, type, afterId]
+// afterId only for black keys (put white key should be right of)
 const notes = [
-    ["a", 261.63], // C4
-    ["s", 293.66], // D4
-    ["d", 329.63], // E4
-    ["f", 349.23], // F4
-    ["g", 392.00], // G4
-    ["h", 440.00], // A4
-    ["j", 493.88], // B4
-    ["k", 523.25], // C5
-    ["l", 587.33], // D5
-    [";", 659.25]  // E5
+    ["z", 130.81,  "white"],        // C3
+    ["s", 138.59,  "black", "z"],   // C#3
+    ["x", 146.83,  "white"],        // D3
+    ["d", 155.56,  "black", "x"],   // D#3
+    ["c", 164.81,  "white"],        // E3
+    ["v", 174.61,  "white"],        // F3
+    ["g", 185.00,  "black", "v"],   // F#3
+    ["b", 196.00,  "white"],        // G3
+    ["h", 207.65,  "black", "b"],   // G#3
+    ["n", 220.00,  "white"],        // A3
+    ["j", 233.08,  "black", "n"],   // A#3
+    ["m", 246.94,  "white"],        // B3
+ 
+    [",", 261.63,  "white"],        // C4
+    ["l", 277.18,  "black", ","],   // C#4
+    [".", 293.66,  "white"],        // D4
+    [";", 311.13,  "black", "."],   // D#4
+    ["/", 329.63,  "white"],        // E4
+    ["q", 349.23,  "white"],        // F4
+    ["2", 369.99,  "black", "q"],   // F#4
+    ["w", 392.00,  "white"],        // G4
+    ["3", 415.30,  "black", "w"],   // G#4
+    ["e", 440.00,  "white"],        // A4
+    ["4", 466.16,  "black", "e"],   // A#4
+    ["r", 493.88,  "white"],        // B4
+ 
+    ["t", 523.25,  "white"],        // C5
+    ["6", 554.37,  "black", "t"],   // C#5
+    ["y", 587.33,  "white"],        // D5
+    ["7", 622.25,  "black", "y"],   // D#5
+    ["u", 659.25,  "white"],        // E5
+    ["i", 698.46,  "white"],        // F5
+    ["9", 739.99,  "black", "i"],   // F#5
+    ["o", 783.99,  "white"],        // G5
+    ["0", 830.61,  "black", "o"],   // G#5
+    ["p", 880.00,  "white"],        // A5
+    ["-", 932.33,  "black", "p"],   // A#5
+    ["[", 987.77,  "white"],        // B5
+ 
+    ["]", 1046.50, "white"],        // C6
 ];
-
+ 
 const piano = document.getElementById("piano");
 const playing = {};
 
-for (const [key] of notes) {
+// Look up a note's frequency by key, used by the mouse/touch
+function freqFor(key) {
+    const note = notes.find(n => n[0] === key);
+    return note ? note[1] : null;
+}
+ 
+// First pass: render white keys (they participate in the flex layout)
+for (const [key, , type] of notes) {
+    if (type !== "white") continue;
     const div = document.createElement("div");
-    div.className = "key";
-    div.id = key;
+    div.className = "key white";
+    div.id = "note-" + key;
     div.textContent = key.toUpperCase();
     piano.appendChild(div);
 }
-
+ 
+// Second pass: render black keys, absolutely positioned over the seam
+// between their "after" white key and the next one.
+for (const [key, , type, afterId] of notes) {
+    if (type !== "black") continue;
+    const div = document.createElement("div");
+    div.className = "key black";
+    div.id = "note-" + key;
+    div.textContent = key.toUpperCase();
+    piano.appendChild(div);
+ 
+    const whiteKey = document.getElementById("note-" + afterId);
+    const whiteRect = whiteKey.getBoundingClientRect();
+    const pianoRect = piano.getBoundingClientRect();
+    const blackWidth = div.getBoundingClientRect().width;
+ 
+    const left = (whiteRect.right - pianoRect.left) - (blackWidth / 2);
+    div.style.left = left + "px";
+}
+ 
 function play(freq, key) {
     if (playing[key]) return;
-
+ 
     const osc = audio.createOscillator();
     const gain = audio.createGain();
     const now = audio.currentTime;
-
+ 
     osc.frequency.value = freq;
     osc.type = "sine";
-
+ 
     gain.gain.value = 0.1;
-
+ 
     osc.connect(gain);
     gain.connect(audio.destination);
-
+ 
     // Start silent
     gain.gain.setValueAtTime(0, now);
-
+ 
     // // 10ms attack
     gain.gain.linearRampToValueAtTime(0.2, now + 0.05);
-
+ 
     // release
     gain.gain.linearRampToValueAtTime(0, now);
-
+ 
     osc.start();
-
+ 
     playing[key] = { osc, gain };
-    document.getElementById(key).classList.add("active");
+    document.getElementById("note-" + key).classList.add("active");
 }
-
+ 
 function stop(key) {
     const sound = playing[key];
     if (!sound) return;
-
+ 
     sound.gain.gain.exponentialRampToValueAtTime(0.0001, audio.currentTime + 0.05);
     sound.osc.stop(audio.currentTime + 0.05);
-
+ 
     delete playing[key];
-    document.getElementById(key).classList.remove("active");
+    document.getElementById("note-" + key).classList.remove("active");
 }
-
+ 
 document.addEventListener("keydown", e => {
     const key = e.key.toLowerCase();
     const note = notes.find(n => n[0] === key);
     if (!note) return;
-
+ 
     audio.resume();
     play(note[1], key);
 });
-
+ 
 document.addEventListener("keyup", e => {
     stop(e.key.toLowerCase());
 });
+
+
+// ------------------ Mouse / touch support
+let mouseIsDown = false;
+document.addEventListener("mousedown", () => { mouseIsDown = true; });
+document.addEventListener("mouseup", () => { mouseIsDown = false; });
+for (const [key] of notes) {
+    const div = document.getElementById("note-" + key);
+    // Mouse: press to start, release (or leave while still held) to stop.
+    div.addEventListener("mousedown", () => {
+        audio.resume();
+        play(freqFor(key), key);
+    });
+    div.addEventListener("mouseup", () => stop(key));
+    div.addEventListener("mouseleave", () => stop(key));
+    
+    // Support dragging across keys with the button held down.
+    div.addEventListener("mouseenter", () => {
+        if (mouseIsDown) {
+            audio.resume();
+            play(freqFor(key), key);
+        }
+    });
+    
+
+    div.addEventListener("touchstart", e => {
+        e.preventDefault();
+        audio.resume();
+        play(freqFor(key), key);
+    });
+    div.addEventListener("touchend", e => {
+        e.preventDefault();
+        stop(key);
+    });
+    div.addEventListener("touchcancel", e => {
+        e.preventDefault();
+        stop(key);
+    });
+}
 </script>
 
 </body>
