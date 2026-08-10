@@ -24,6 +24,10 @@ a.is-disabled:hover {
    color: #6b6a68;
 }
 
+footer {margin:1rem; text-align:left; background-color:#16161d;}
+footer p { all: unset; padding:10px;} footer a { all: unset;}
+footer a:hover {all: unset; text-decoration:underline; transition:0.3; cursor:pointer; }
+
 /* for mobile devices */
 @media (max-width: 768px) {
    .flex-grid {  flex-direction: column;  gap: 2rem;}
