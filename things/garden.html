@@ -6,34 +6,56 @@
 <meta name="robots" content="noindex">
 <title>Garden</title>
 <style>
-#confetti { position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-   pointer-events: none; overflow: hidden; z-index: 999; }
-#confetti span { position: absolute; top: -10px; width: 8px; height: 8px; 
-   animation: fallConfetti linear forwards; }
-@keyframes fallConfetti { to { transform: translateY(110vh) rotate(360deg); } }
-</style>
-<style>
-body { margin: 0; height: 100vh; display: flex; justify-content: center; align-items: center; flex-direction:column;
-    background: #16161d; font-family: sans-serif; color:#fff8e7;}
+body { margin: 0; height:1vw; background: #16161d; font-family: garamond; color:#fff8e7; user-select: none; overflow: hidden; }
 
-    .backbutton { position:absolute; top: 20px; left: 20px; padding:2px 8px; text-decoration:none; font-size:1.5rem;
-      background: #16161d; color:#fff8e7; border-radius: 4px; border-color: #fff8e7; border:solid; border-width:1px; }
-   .backbutton:hover {cursor:pointer; background: #fff8e7; color:#16161d; transition:0.3s} 
+#grid {display: flex; flex-wrap: wrap; font-size: 30px; line-height: 1;}
 
+.element { width: 1em; height: 1em; cursor: pointer; padding:0.5rem;
+   display: flex; align-items: center; justify-content: center; font-size: 30px; }
+
+
+.backbutton { position:absolute; top: 12px; left: 12px; padding:2px 8px; text-decoration:none; font-size:1.5rem;
+   background: #16161d; color:#fff8e7; border-radius: 4px; border-color: #fff8e7; border:solid; border-width:1px; }
+.backbutton:hover {cursor:pointer; background: #fff8e7; color:#16161d; transition:0.3s} 
 </style>
 </head>
 <body>
 <a class="backbutton" href="/index.html">&lt;</a>
-<script>
-const starsEl = document.getElementById('stars');
-for (let i = 0; i < 300; i++) {
-  const s = document.createElement('span');
-  s.style.left = Math.random() * 100 + '%';
-  s.style.top = Math.random() * 100 + '%'; // spread across the doubled height
-  starsEl.appendChild(s);
-}
-</script>
+<div id="grid"></div>
 
+<script>
+   const grid = document.getElementById("grid");
+   const items = ['✨', '🍁', '🌱', '🌿', '☘️','🍄','🍄‍🟫','🍂'];
+   const special = ['🍀', '🦷'];
+
+   function randomItem() {
+      if (Math.random() < 0.01) {
+         return special[Math.floor(Math.random() * special.length)];
+      }
+      return items[Math.floor(Math.random() * items.length)];
+   }
+
+   function fillPage() {
+      const fontSize = parseInt(getComputedStyle(grid).fontSize);
+      const cols = Math.ceil(window.innerWidth / fontSize);
+      const rows = Math.ceil(window.innerHeight / fontSize);
+      const count = cols * rows;
+
+      grid.innerHTML = '<span class="element">-</span>'.repeat(count);
+   }
+
+   fillPage();
+   window.addEventListener("resize", fillPage);
+
+   grid.addEventListener("pointerover", function(e) {
+      if (e.target.classList.contains("element")) {
+
+         e.target.textContent = randomItem();
+         e.target.classList.add("permahover");
+      }
+   });
+
+</script>
 
 </body>
 </html>
