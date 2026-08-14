@@ -2,7 +2,8 @@ body { background-color: #16161d;  color: #FFF8E7; font-family: garamond;
    text-align: center;  margin: 0;  padding: 0; user-select: none; overflow-x:hidden; letter-spacing:0.05rem; }
 
 .flex-grid {  display: flex;  gap: 2rem;  margin-left: 10%;  margin-right: 10%;  margin-top: 2rem; }
-.col {  flex: 1;  white-space: nowrap; }
+.col {  flex: 1;  white-space: nowrap; 
+  transition: transform 2s ease, opacity 2s ease;}
 
 h1 {  font-size: 3rem;  margin-bottom: 1rem;  margin-top: 1.5em;}
 p {  font-size: 1.5rem;}
@@ -11,18 +12,9 @@ small {  color:#6b6a68;  margin:0;}
 a { color: #fff8E7;  text-decoration: none;  border: 2px solid #fff8E7;  padding: 10px;  
    border-radius: 4px;  margin:10px;  font-size:1rem; }
 a:hover {  background-color: #fff8E7;  color: #16161d;  transition: 0.3s;}
-a.is-disabled {
-   opacity: 0.45;
-   filter: grayscale(1);
-   cursor: not-allowed;
-   pointer-events: none;
-   border-color: #6b6a68;
-   color: #6b6a68;
-}
-a.is-disabled:hover {
-   background-color: transparent;
-   color: #6b6a68;
-}
+a.is-disabled { opacity: 0.45; filter: grayscale(1); cursor: not-allowed; pointer-events: none; 
+   border-color: #6b6a68; color: #6b6a68; }
+a.is-disabled:hover { background-color: transparent; color: #6b6a68; }
 
 footer {margin:1rem; text-align:left; background-color:#16161d;}
 footer p { all: unset; padding:10px;} footer a { all: unset;}
@@ -137,3 +129,13 @@ button:hover { background: #fff8e7; color: #16161d; transition: 0.3s;}
    background-image: linear-gradient(90deg, #00C0FF 0%, #FFCF00 49%, #FC4F4F 100%); transition: 0.3s;}
 #partyButton.is-active {background-color: #fff8E7;  color: #16161d;  
    background-image: linear-gradient(90deg, #00C0FF 0%, #FFCF00 49%, #FC4F4F 100%);}
+
+
+
+#filterDiv {position:absolute; top: 225px; left:50px; display:flex; flex-direction:row; 
+   border-top: solid 2px #fff8e7; border-left: solid; padding:4px; border-radius:4px;}
+#filterDiv p {font-size:1rem;}
+#filterDiv button {font-size:0.85rem; padding-left:6px; padding-right:6px; margin:4px; border-radius:30%;}
+#filterDiv button.is-active {background:#fff8E7; color:#16161d;}
+.hidden { display: none;  }
+

@@ -122,9 +122,15 @@ if (partyButton) {
    window.addEventListener('resize', updatePartyButtonState);
 }
 
+// ######################################
+// diable filters on mobile
+const filter = document.getElementById('filterDiv');
+const isMobile = window.matchMedia('(max-width: 768px)').matches;
+if (filter) {
+   filter.style.display = isMobile ? 'none' : 'flex';
+}
 
-
-
+// ######################################
 // Disable mobile-unfriendly links on phones and small screens
 const mobileDisabledLinks = Array.from(document.querySelectorAll('a[data-mobile-disabled="true"]'));
 
@@ -147,4 +153,52 @@ function updateMobileDisabledLinks() {
 if (mobileDisabledLinks.length > 0) {
    updateMobileDisabledLinks();
    window.addEventListener('resize', updateMobileDisabledLinks);
+}
+
+
+// ######################################
+const buttons = document.querySelectorAll('#filterDiv button');
+const items = document.querySelectorAll('.less_silly, .more_silly');
+
+buttons.forEach(button => {
+   button.onclick = () => {
+      const wasActive = button.classList.contains('is-active');
+      buttons.forEach(b => b.classList.remove('is-active'));
+      button.classList.toggle('is-active', !wasActive);
+
+      const filter = button.dataset.filter;
+      const active = !wasActive;
+
+      animateFilter(() => {
+         items.forEach(item =>
+         item.classList.toggle('hidden', active && !item.classList.contains(filter))
+         );
+      });
+   };
+});
+
+function animateFilter(applyChanges) {
+   const before = new Map();
+   items.forEach(item => {
+      if (!item.classList.contains('hidden')) before.set(item, item.getBoundingClientRect());
+   });
+
+   applyChanges();
+
+   items.forEach(item => {
+      if (item.classList.contains('hidden')) return;
+
+      const start = before.get(item);
+      const end = item.getBoundingClientRect();
+
+      item.style.transition = 'none';
+      item.style.transform = start ? `translate(${start.left - end.left}px, ${start.top - end.top}px)` : '';
+      item.style.opacity = start ? '' : '0';
+
+      requestAnimationFrame(() => {
+         item.style.transition = 'transform 0.3s ease, opacity 0.3s ease';
+         item.style.transform = '';
+         item.style.opacity = '1';
+      });
+   });
 }

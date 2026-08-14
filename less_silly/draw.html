@@ -34,7 +34,7 @@ ul{list-style:none;}
 <canvas id="canvas"></canvas>
 
 <ul class="top-buttons">
-    <li><a class="backbutton" href="/index.html">&lt;</a></li>
+    <li><a class="backbutton" href="/index.html">«</a></li>
 
     <li><a class="resetbutton">clear</a></li>
     <li><a class="resetbutton undobutton">undo</a></li>
@@ -264,7 +264,7 @@ function stopDrawing(e){
 }
 
 canvas.addEventListener("pointerup", stopDrawing); // Finish drawing
-canvas.addEventListener("pointercancel", stopDrawing); // Pen was interrupted (common on tablets)
+canvas.addEventListener("pointercancel", stopDrawing); // Pen was interrupted 
 canvas.addEventListener("pointerleave", stopDrawing); // Stop if the pointer leaves the canvas
 
 // Preserve drawing when resizing the window
