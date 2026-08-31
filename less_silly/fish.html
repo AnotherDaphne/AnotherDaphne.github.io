@@ -280,13 +280,16 @@ function fishCaught() {
   progressEl.style.display = "none";
 
   const diff = DIFFICULTIES[currentDifficulty];
-  const remaining = diff.fish.filter(f => !caughtFish[currentDifficulty].includes(f));
+  const remaining = diff.fish.filter(name =>
+    !caughtFish[currentDifficulty].some(fish => fish.name === name)
+  );
 
   if (remaining.length === 0) {
     messageEl.textContent = "you've caught every " + currentDifficulty + " fish!";
   } else {
     const name = remaining[Math.floor(Math.random() * remaining.length)];
-    caughtFish[currentDifficulty].push(name);
+    const size = Math.floor(Math.random() * 100);
+    caughtFish[currentDifficulty].push({ name, size });
     messageEl.textContent = "you caught a " + name + "!";
   }
 
@@ -323,7 +326,7 @@ document.addEventListener("keydown", e => {
 
 
 function updateCaughtList() {
-  let total = 0, totalPossible = 0, diffHTML = "";
+  let total = 0, totalPossible = 0, diffHTML = ""; 
 
   Object.keys(DIFFICULTIES).forEach(diff => {
     const caught = caughtFish[diff].length;
@@ -333,7 +336,7 @@ function updateCaughtList() {
 
     if (caught > 0) {
       const fishTags = caughtFish[diff]
-        .map(f => `<span class="fish-tag fish-tag--${diff}">${f}</span>`)
+        .map(fish => `<span class="fish-tag fish-tag--${diff}">${fish.name} - ${fish.size} in.</span>`)
         .join(', ');
 
       diffHTML += `

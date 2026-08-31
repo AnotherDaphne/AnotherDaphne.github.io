@@ -25,7 +25,7 @@ setInterval(() => {
   const nextTarget = targetDates.find(t => t > now);
 
   if (!nextTarget) {
-    document.getElementById("countdown").innerHTML = "<h1>🎉 Yay :D</h1>";
+    document.getElementById("countdown").innerHTML = "<h2>🎉 Yay :D Countdown Complete</h2>";
     return;
   }
 
@@ -192,13 +192,13 @@ function animateFilter(applyChanges) {
       const end = item.getBoundingClientRect();
 
       item.style.transition = 'none';
-      item.style.transform = start ? `translate(${start.left - end.left}px, ${start.top - end.top}px)` : '';
-      item.style.opacity = start ? '' : '0';
+      // item.style.transform = start ? `translate(${start.left - end.left}px, ${start.top - end.top}px)` : '';
+      // item.style.opacity = start ? '' : '0';
 
-      requestAnimationFrame(() => {
-         item.style.transition = 'transform 0.3s ease, opacity 0.3s ease';
-         item.style.transform = '';
-         item.style.opacity = '1';
-      });
+      // requestAnimationFrame(() => {
+      //    item.style.transition = 'transform 0.3s ease, opacity 0.3s ease';
+      //    item.style.transform = '';
+      //    item.style.opacity = '1';
+      // });
    });
 }

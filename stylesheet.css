@@ -108,7 +108,7 @@ button:hover { background: #fff8e7; color: #16161d; transition: 0.3s;}
 #entries::-webkit-scrollbar-thumb:hover { background: #fff8e7;}
 
 #countdown{ display:flex; gap:10px; justify-content:center; align-items:center; width: fit-content; margin: auto;
-   border: solid 2px #fff8e7; border-radius:12px; max-width: 540px; margin-top: 2rem;}
+   border: solid 2px #fff8e7; border-radius:12px; max-width: 540px; margin-top: 2rem; padding:0rem 1rem;}
 .time-box{padding:10px; min-width:110px;}
 .number{ font-size:2.5rem; font-weight:bold;}
 .label{ margin-top:8px; color:#fff8e7; text-transform:uppercase; letter-spacing:1px;}
