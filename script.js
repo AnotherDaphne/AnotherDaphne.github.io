@@ -2,6 +2,7 @@ const targetDates = [
   new Date("August 4, 2026 14:45:00").getTime(),
   new Date("August 11, 2026 12:00:00").getTime(),
   new Date("August 28, 2026 15:30:00").getTime(),
+  new Date("November 27, 2026 13:30:00").getTime(),
 ];
 
 const updateCountdownState = () => {
